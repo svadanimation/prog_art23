@@ -15,9 +15,6 @@ Author: Nathanael Perez
 #Imports Catalog
 import maya.cmds as mc
 
-#Create New Scene
-mc.file(new = True, f = True)
-
 #Define Shader
 def make_shader(name, object = "", color = [1, 1, 1], type = "lambert", new = False):
     shader_name = name + "_shader"
@@ -182,14 +179,24 @@ def push_button4(*args):
   mc.move(7.5, 0, 0, robot)
   print(f"{n} has arrived!")
 
-#Selection Window
-window_name = 'robot_selection'
-if mc.window(window_name, ex = True):
-    mc.deleteUI(window_name) 
-window = mc.window(window_name, t = "Robot Selection", w = 275)
-mc.columnLayout(adj = True)
-mc.button( l = 'Nathan', c = push_button1)
-mc.button( l = 'Kent', c = push_button2)
-mc.button( l = 'Ben', c = push_button3)
-mc.button( l = 'Jeremy', c = push_button4)
-mc.showWindow()
+#Robot UI
+def robot_ui(new = False):
+    
+    #Create New Scene
+    if new == True:
+        mc.file(new = True, f = True)
+
+    #Selection Window
+    window_name = 'robot_selection'
+    if mc.window(window_name, ex = True):
+        mc.deleteUI(window_name) 
+    window = mc.window(window_name, t = "Robot Selection", w = 275)
+    mc.columnLayout(adj = True)
+    mc.button( l = 'Nathan', c = push_button1)
+    mc.button( l = 'Kent', c = push_button2)
+    mc.button( l = 'Ben', c = push_button3)
+    mc.button( l = 'Jeremy', c = push_button4)
+    mc.showWindow()
+
+if __name__ == "__main__":
+    robot_ui()
