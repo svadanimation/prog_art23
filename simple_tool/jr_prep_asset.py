@@ -1,3 +1,22 @@
+'''
+This preps and cleans up your 3d models
+Creates a group based on selection
+Creates the proper hierarchy 
+Organizes your assets by grouping and appending _mod 
+Freezes transforms, resets pivot, and snaps to ground 
+
+Example: Given a selection in your scene
+    Select your model
+    Use text box pop up to rename your item
+    Select freeze transform or snap selection to ground
+
+TODO:
+Fix Global function calling(scope issue)
+
+Author:
+Jeremy Ramirez
+
+'''
 #import
 import maya.cmds as mc
 #This is  script to create a group hierarchy in order to prep your 3d model for publishing
