@@ -1,8 +1,15 @@
 """
-This is a tool used to build four different colored and poseable robots.
-Push the button that corresponds to the robot that you want.
+This is a tool used to build four poseable and differently colored robots.
 
-~ Nathanael Perez
+Example:
+- Run this script.
+- Push the button in the Robot Selection window that corresponds to the robot that you want.
+- Nathan is purple, Kent is gray, Ben is teal, and Jeremy is red.
+
+ToDo:
+- Add animations to the robots???
+
+Author: Nathanael Perez
 """
 
 #Imports Catalog
@@ -150,28 +157,28 @@ def make_robot(name, color):
 #Define Button 1
 def push_button1(*args):
   n = "Nathan"
-  robot = make_robot(n, [0, 0.4 ,0.4])
+  robot = make_robot(n, [0.2, 0.1, 0.2])
   mc.move(-7.5, 0, 0, robot)
   print(f"{n} has arrived!")
 
 #Define Button 2
 def push_button2(*args):
   n = "Kent"
-  robot = make_robot(n, [0.4, 0 ,0])
+  robot = make_robot(n, [0.4, 0.4, 0.4])
   mc.move(-2.5, 0, 0, robot)
   print(f"{n} has arrived!")
 
 #Define Button 3
 def push_button3(*args):
   n = "Ben"
-  robot = make_robot(n, [0.2, 0.1, 0.2])
+  robot = make_robot(n, [0, 0.4, 0.4])
   mc.move(2.5, 0, 0, robot)
   print(f"{n} has arrived!")
 
 #Define Button 4
 def push_button4(*args):
   n = "Jeremy"
-  robot = make_robot(n, [0.4, 0.4, 0.4])
+  robot = make_robot(n, [0.4, 0 ,0])
   mc.move(7.5, 0, 0, robot)
   print(f"{n} has arrived!")
 
@@ -179,10 +186,10 @@ def push_button4(*args):
 window_name = 'robot_selection'
 if mc.window(window_name, ex = True):
     mc.deleteUI(window_name) 
-window = cmds.window(window_name, t = "Robot Selection", w = 275)
-cmds.columnLayout(adj = True)
-cmds.button( l = 'Nathan', c = push_button1)
-cmds.button( l = 'Kent', c = push_button2)
-cmds.button( l = 'Ben', c = push_button3)
-cmds.button( l = 'Jeremy', c = push_button4)
-cmds.showWindow()
+window = mc.window(window_name, t = "Robot Selection", w = 275)
+mc.columnLayout(adj = True)
+mc.button( l = 'Nathan', c = push_button1)
+mc.button( l = 'Kent', c = push_button2)
+mc.button( l = 'Ben', c = push_button3)
+mc.button( l = 'Jeremy', c = push_button4)
+mc.showWindow()
