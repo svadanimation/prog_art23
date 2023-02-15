@@ -1,24 +1,43 @@
+'''
+
+This tool allows for interactive selection of the commands
+available to undo and/or redo. With a list of widgets, a user
+can go to a specific place in the history of commands.
+
+Example:
+    With a set of commands having been done and/or undone:
+    A user will be able to interactively select/double-click
+    on one of the commands in the list and jump to that place
+    in the history of commands that have been done and/or undone
+
+TODO:
+    With the upper list being undoable commands and lower list
+    being the redoable commands:
+
+    Simple double-click an item/commands
+    You will then jump to that location in the history of commands
+    The list will update, and you may jump to another item/command
+
+    Note: Click the update button in the center if you happen to
+    undo/redo/do any other command, so you will have updated lists
+
+Author(s):
+    - Raphael Roman
+
+Contributors(s):
+    - Zach Gray
+
+Editors(s):
+    - Zach Gray
+    
+'''
+
+# Imports
 import maya.cmds as mc
 import maya.api.OpenMaya as om
 from contextlib import contextmanager
 
-'''
-        Hello User! This is an Undo/Redo tool.
-    
-    When run, you will be able to drag a slider that undos or redos for you
-    as opposed to spamming `z` or `shift + z`
-    
-    Instructions:
-        1) Drag slider left to undo
-        
-        2) Drag slider right to redo
-        
-        
-    ~ Raphael Roman
-    
-'''
-
-# Build a simple data class, initialize a simple list
+# Build a simple data class and initialize a simple list
 class CustomData:
     def __init__(self):
         self.value = []
@@ -85,7 +104,12 @@ class Undo_Redo_Window():
             mc.deleteUI(self.window_name)
             
         # Creates window
-        self.window = mc.window(self.window_name, t=self.title, wh=self.size, s=False, mnb=False, mxb=False)
+        self.window = mc.window(    self.window_name, t=self.title, 
+                                    wh=self.size, 
+                                    s=False, 
+                                    mnb=False, 
+                                    mxb=False   )
+
         mc.window(self.window_name, e=True, wh=(200,320))
         
         # Creating undo/redo widgets
@@ -243,5 +267,6 @@ class Undo_Redo_Window():
                                                 a=empty_undo_list,
                                                 ra=True, 
                                                 e=True    )   
-                                                             
-user_window = Undo_Redo_Window()
+
+if __name__ == '__main__':
+    user_window = Undo_Redo_Window()

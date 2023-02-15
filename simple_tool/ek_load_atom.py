@@ -2,20 +2,23 @@
 This exports current animation as an Atom export 
 and creates new file with new jack_rig 
 Imports animation to fix glitches.
+Does not inport any other objects.
 
-Example:
+Example: 
     Given a file using the jack rig
     Select the TSM2Controls set
 
-    Execute this file
+    Execute this file.
 
 TODO:
     - Put loose code in function
     - Create a if __name__ == 'main fn
     - Fix namespaces
+    - Find shelf button pic
+    - Try to keep same perspective in new file
 
 Author:
-    Ella Kim
+    Eleanor Kim
 '''
 import maya.cmds as mc
 import os
@@ -29,23 +32,23 @@ min_key= mc.playbackOptions(min=True, q=True)
 max_key= mc.playbackOptions(max=True, q=True)
 NAMESPACE = 'jack_rig'
 NODE = 'Character'
-CONTROL_LIST = ['.TRUNK', 
-                '.Hips', 
-                '.Torso', 
-                '.Neck', 
-                '.Head', 
-                '.ARMS', 
-                '.ArmL', 
-                '.ArmR', 
-                '.HandL', 
-                '.HandR', 
-                '.LEGS', 
-                '.LegL', 
-                '.LegR', 
-                '.FootL', 
-                '.FootR', 
-                '.ToeToggle', 
-                '.VIS_TRACKERS']
+CONTROL_LIST = ['TRUNK', 
+                'Hips', 
+                'Torso', 
+                'Neck', 
+                'Head', 
+                'ARMS', 
+                'Arm_L', 
+                'Arm_R', 
+                'HandL', 
+                'HandR', 
+                'LEGS', 
+                'LegL', 
+                'LegR', 
+                'FootL', 
+                'FootR', 
+                'ToeToggle', 
+                'VIS_TRACKERS']
 
 def plugin_check(plugin):
     try:
@@ -146,8 +149,8 @@ def get_controls(set=''):
 
 vis_data = []
 
-for control_e in control_list:
-    value = mc.getAttr(NAMESPACE + ':' + NODE + control_e)
+for control_e in CONTROL_LIST:
+    value = mc.getAttr(NAMESPACE + ':' + NODE + '.'+ control_e)
     vis_data.append(value)
          
 # get the rig controls        
@@ -201,14 +204,10 @@ print("Importing atom file")
 load_atom(TEMP_FILE_PATH, import_file=True)  
 
 #setting the limb visibility in new file
-for control_e, value in zip(control_list, vis_data):
+for control_e, value in zip(CONTROL_LIST, vis_data):
     try:
-        mc.setAttr(NAMESPACE + ':' + NODE + control_e, value)
+        mc.setAttr(NAMESPACE + ':' + NODE + '.' + control_e, value)
         print(f'Value of {control_e} set to {value}')
     except:
         mc.warning(f"Error setting value of {control_e} to {value}")
    
-for x in control_list:
-    node = ('jack_rig:Character')
-    att_name = node + x
-    print(att_name)       
