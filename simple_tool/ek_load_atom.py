@@ -28,27 +28,25 @@ TEMP_FILE_PATH = os.path.abspath('z:/temp.atom')
 JACK_FILE_PATH = os.path.abspath(r"K:\Animation\Library\rigs\BodyMech_MegaPack\scenes\jack_rig.ma")
 CONTROL_SET_NAME = 'TSM2Controls'
 ATOM_PLUGIN = 'atomImportExport.mll'
-min_key= mc.playbackOptions(min=True, q=True)
-max_key= mc.playbackOptions(max=True, q=True)
 NAMESPACE = 'jack_rig'
 NODE = 'Character'
-CONTROL_LIST = ['.TRUNK', 
-                '.Hips', 
-                '.Torso', 
-                '.Neck', 
-                '.Head', 
-                '.ARMS', 
-                '.Arm_L', 
-                '.Arm_R', 
-                '.HandL', 
-                '.HandR', 
-                '.LEGS', 
-                '.LegL', 
-                '.LegR', 
-                '.FootL', 
-                '.FootR', 
-                '.ToeToggle', 
-                '.VIS_TRACKERS']
+CONTROL_LIST = ['TRUNK', 
+                'Hips', 
+                'Torso', 
+                'Neck', 
+                'Head', 
+                'ARMS', 
+                'Arm_L', 
+                'Arm_R', 
+                'HandL', 
+                'HandR', 
+                'LEGS', 
+                'LegL', 
+                'LegR', 
+                'FootL', 
+                'FootR', 
+                'ToeToggle', 
+                'VIS_TRACKERS']
 
 def plugin_check(plugin):
     try:
@@ -147,71 +145,73 @@ def get_controls(set=''):
     if controls_selection:
         return controls_selection
 
-vis_data = []
 
-for control_e in control_list:
-    value = mc.getAttr(NAMESPACE + ':' + NODE + control_e)
-    vis_data.append(value)
-         
-# get the rig controls        
-rig_controls = get_controls()
+def jack_io():
+    vis_data = []
 
-
-#promt user to save file
-print("Saving file")        
-mc.file(save=True)   
-
-# select the controls
-mc.select(rig_controls)
-
-#get current time slider min and max
-print(min_key)
-print(max_key)
-
-#note visibility of orig file
-print("saving visibility")
-print(f'Value of {control_e} is {value}')
-
-# export the atom file to the temp file path
-print("Exporting atom file")        
-load_atom(TEMP_FILE_PATH)
-
-# make a new scene
-print("New file")        
-mc.file(new=True, f=True)
-
-#set timeslider
-print("setting new timeslider")
-mc.playbackOptions(min= min_key)
-mc.playbackOptions(max= max_key)
-
-# create a reference
-print("Making ref file")
-#multipleFilters = "Maya Files (*.ma *.mb);;Maya ASCII (*.ma);;Maya Binary (*.mb);;All Files (*.*)"
-# jack_file_path = mc.fileDialog2(fileFilter=multipleFilters, fileMode=1, dialogStyle=2, okc='Select')
-
-namespace = get_namespace_from_file(JACK_FILE_PATH)       
-mc.file(JACK_FILE_PATH, r=True, namespace = namespace)
-
-# make a selection
-print("Selecting controls")        
-sel= get_controls(namespace + ':' + CONTROL_SET_NAME)
-mc.select(sel, replace=True)
+    for control_e in CONTROL_LIST:
+        value = mc.getAttr(NAMESPACE + ':' + NODE + '.'+ control_e)
+        vis_data.append(value)
+            
+    # get the rig controls        
+    rig_controls = get_controls()
 
 
-# import the atom file
-print("Importing atom file")        
-load_atom(TEMP_FILE_PATH, import_file=True)  
+    #promt user to save file
+    print("Saving file")        
+    mc.file(save=True)   
 
-#setting the limb visibility in new file
-for control_e, value in zip(control_list, vis_data):
-    try:
-        mc.setAttr(NAMESPACE + ':' + NODE + control_e, value)
-        print(f'Value of {control_e} set to {value}')
-    except:
-        mc.warning(f"Error setting value of {control_e} to {value}")
-   
-for x in control_list:
-    node = ('jack_rig:Character')
-    att_name = node + x
-    print(att_name)       
+    # select the controls
+    mc.select(rig_controls)
+
+    #get current time slider min and max
+    min_key= mc.playbackOptions(min=True, q=True)
+    max_key= mc.playbackOptions(max=True, q=True)
+    print(min_key)
+    print(max_key)
+
+    #note visibility of orig file
+    print("saving visibility")
+    print(f'Value of {control_e} is {value}')
+
+    # export the atom file to the temp file path
+    print("Exporting atom file")        
+    load_atom(TEMP_FILE_PATH)
+
+    # make a new scene
+    print("New file")        
+    mc.file(new=True, f=True)
+
+    #set timeslider
+    print("setting new timeslider")
+    mc.playbackOptions(min= min_key)
+    mc.playbackOptions(max= max_key)
+
+    # create a reference
+    print("Making ref file")
+    #multipleFilters = "Maya Files (*.ma *.mb);;Maya ASCII (*.ma);;Maya Binary (*.mb);;All Files (*.*)"
+    # jack_file_path = mc.fileDialog2(fileFilter=multipleFilters, fileMode=1, dialogStyle=2, okc='Select')
+
+    namespace = get_namespace_from_file(JACK_FILE_PATH)       
+    mc.file(JACK_FILE_PATH, r=True, namespace = namespace)
+
+    # make a selection
+    print("Selecting controls")        
+    sel= get_controls(namespace + ':' + CONTROL_SET_NAME)
+    mc.select(sel, replace=True)
+
+
+    # import the atom file
+    print("Importing atom file")        
+    load_atom(TEMP_FILE_PATH, import_file=True)  
+
+    #setting the limb visibility in new file
+    for control_e, value in zip(CONTROL_LIST, vis_data):
+        try:
+            mc.setAttr(NAMESPACE + ':' + NODE + '.' + control_e, value)
+            print(f'Value of {control_e} set to {value}')
+        except:
+            mc.warning(f"Error setting value of {control_e} to {value}")
+    
+if __name__ == "__main__":
+    jack_io()
