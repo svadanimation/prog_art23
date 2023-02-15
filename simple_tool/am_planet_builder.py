@@ -17,6 +17,8 @@ Ada Morgan
 import maya.cmds as mc
 import random
 
+# constants
+shader_names = ["planet_shader1", "planet_shader2", "planet_shader3"]
 
 def create_ui():
     result = mc.promptDialog(
@@ -52,7 +54,6 @@ def assign_color(planet_group, color, shader_names, material_name):
         if not mc.objExists(planet_group):
             print("Object " + planet_group + " does not exist.")
 
-shader_names = ["planet_shader1", "planet_shader2", "planet_shader3"]
 
 def create_planet(planet_name, index):
     print("Creating planet:", planet_name)
@@ -106,6 +107,6 @@ def create_solar_system(num_planets):
         assign_color(planet_group, [r,g,b], shader_names, material_name)
         mc.move(i*20, 0, 0, planet_group)
 
-create_ui()
 
-
+if __name__ == '__main__':
+    create_ui()
