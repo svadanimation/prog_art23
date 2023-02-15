@@ -109,7 +109,7 @@ class Undo_Redo_Window():
                                     s=False, 
                                     mnb=False, 
                                     mxb=False   )
-                                    
+
         mc.window(self.window_name, e=True, wh=(200,320))
         
         # Creating undo/redo widgets
@@ -267,5 +267,6 @@ class Undo_Redo_Window():
                                                 a=empty_undo_list,
                                                 ra=True, 
                                                 e=True    )   
-                                                             
-user_window = Undo_Redo_Window()
+
+if __name__ == '__main__':
+    user_window = Undo_Redo_Window()
