@@ -11,7 +11,7 @@ Example: Given a selection in your scene
     Select freeze transform or snap selection to ground
 
 TODO:
-Fix Global function calling(scope issue)
+Fix Global function callings(scope issue)
 
 Author:
 Jeremy Ramirez
