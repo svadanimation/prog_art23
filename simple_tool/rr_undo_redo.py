@@ -104,7 +104,12 @@ class Undo_Redo_Window():
             mc.deleteUI(self.window_name)
             
         # Creates window
-        self.window = mc.window(self.window_name, t=self.title, wh=self.size, s=False, mnb=False, mxb=False)
+        self.window = mc.window(    self.window_name, t=self.title, 
+                                    wh=self.size, 
+                                    s=False, 
+                                    mnb=False, 
+                                    mxb=False   )
+                                    
         mc.window(self.window_name, e=True, wh=(200,320))
         
         # Creating undo/redo widgets
