@@ -2,20 +2,23 @@
 This exports current animation as an Atom export 
 and creates new file with new jack_rig 
 Imports animation to fix glitches.
+Does not inport any other objects.
 
-Example:
+Example: 
     Given a file using the jack rig
     Select the TSM2Controls set
 
-    Execute this file
+    Execute this file.
 
 TODO:
     - Put loose code in function
     - Create a if __name__ == 'main fn
     - Fix namespaces
+    - Find shelf button pic
+    - Try to keep same perspective in new file
 
 Author:
-    Ella Kim
+    Eleanor Kim
 '''
 import maya.cmds as mc
 import os
@@ -35,8 +38,8 @@ CONTROL_LIST = ['.TRUNK',
                 '.Neck', 
                 '.Head', 
                 '.ARMS', 
-                '.ArmL', 
-                '.ArmR', 
+                '.Arm_L', 
+                '.Arm_R', 
                 '.HandL', 
                 '.HandR', 
                 '.LEGS', 

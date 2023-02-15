@@ -1,6 +1,19 @@
 '''
-Select an object then run the program to rename both its shader and its shading group.
--Rileigh Juba
+Select an object then run the program to rename 
+both its shader and its shading group.
+
+Example: 
+    Select a series of meshes and then
+    execute the function select_mesh() .
+
+TODO:
+    - Rework for ability to rename objects
+    both with shared and individual shaders
+    at one time.
+    - Figure out why SG renamer doesn't work
+    all the time.
+    
+~Rileigh Juba
 '''
 
 import maya.cmds as mc
