@@ -1,5 +1,21 @@
 '''
-exports current animation as an Atom export and creates new file with new jack_rig imports animation to fix glitches
+This exports current animation as an Atom export 
+and creates new file with new jack_rig 
+Imports animation to fix glitches.
+
+Example:
+    Given a file using the jack rig
+    Select the TSM2Controls set
+
+    Execute this file
+
+TODO:
+    - Put loose code in function
+    - Create a if __name__ == 'main fn
+    - Fix namespaces
+
+Author:
+    Ella Kim
 '''
 import maya.cmds as mc
 import os
