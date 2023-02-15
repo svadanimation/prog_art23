@@ -186,10 +186,10 @@ def push_button4(*args):
 window_name = 'robot_selection'
 if mc.window(window_name, ex = True):
     mc.deleteUI(window_name) 
-window = cmds.window(window_name, t = "Robot Selection", w = 275)
-cmds.columnLayout(adj = True)
-cmds.button( l = 'Nathan', c = push_button1)
-cmds.button( l = 'Kent', c = push_button2)
-cmds.button( l = 'Ben', c = push_button3)
-cmds.button( l = 'Jeremy', c = push_button4)
-cmds.showWindow()
+window = mc.window(window_name, t = "Robot Selection", w = 275)
+mc.columnLayout(adj = True)
+mc.button( l = 'Nathan', c = push_button1)
+mc.button( l = 'Kent', c = push_button2)
+mc.button( l = 'Ben', c = push_button3)
+mc.button( l = 'Jeremy', c = push_button4)
+mc.showWindow()
