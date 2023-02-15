@@ -3,7 +3,7 @@ This preps and cleans up your 3d models
 Creates a group based on selection
 Creates the proper hierarchy 
 Organizes your assets by grouping and appending _mod 
-Freezes transforms, resets pivot, and snaps to ground 
+Freezes transform, resets pivot, and snaps to ground 
 
 Example: Given a selection in your scene
     Select your model
