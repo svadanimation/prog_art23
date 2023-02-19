@@ -11,11 +11,8 @@ Example:
     Execute this file.
 
 TODO:
-    - Put loose code in function
-    - Create a if __name__ == 'main fn
     - Fix namespaces
     - Find shelf button pic
-    - Try to keep same perspective in new file
 
 Author:
     Eleanor Kim
