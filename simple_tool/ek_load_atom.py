@@ -11,7 +11,6 @@ Example:
     Execute this file.
 
 TODO:
-    - Fix namespaces
     - Find shelf button pic
 
 Author:
