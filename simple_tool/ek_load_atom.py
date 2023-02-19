@@ -1,5 +1,5 @@
 '''
-This exports current animation as an Atom export 
+This exports your current animation as an Atom export 
 and creates new file with new jack_rig 
 Imports animation to fix glitches.
 Does not inport any other objects.
