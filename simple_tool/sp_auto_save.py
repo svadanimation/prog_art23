@@ -1,4 +1,4 @@
-import maya.cmds as mc
+import maya.cmds as cmds
 # Set the autosave time interval to 10 minutes
 cmds.autoSave( int=5 )
 
