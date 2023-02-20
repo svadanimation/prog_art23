@@ -1,8 +1,13 @@
 '''
 This is a tool that allows you to toggle back and forth between the stepped and splined defualt settings.
-It also allows you to change the tangents on any existing keys in a selection
+It also allows you to change the tangents on any existing keys in a selection.
 
--Kaleb Rivas
+Example:
+The UI has four buttons. The two buttons at the top will toggle the global default settings, while the two at the bottom will
+change the tangents on a selected object's keys. For the selection buttons to work, there must be a selection, or a warning will pop up.
+
+Author:
+Kaleb Rivas
 '''
 
 import maya.cmds as mc
