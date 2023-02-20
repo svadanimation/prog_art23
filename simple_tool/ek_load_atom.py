@@ -1,5 +1,5 @@
 '''
-This exports current animation as an Atom export 
+This exports your current animation as an Atom export 
 and creates new file with new jack_rig 
 Imports animation to fix glitches.
 Does not inport any other objects.
@@ -11,11 +11,7 @@ Example:
     Execute this file.
 
 TODO:
-    - Put loose code in function
-    - Create a if __name__ == 'main fn
-    - Fix namespaces
     - Find shelf button pic
-    - Try to keep same perspective in new file
 
 Author:
     Eleanor Kim
