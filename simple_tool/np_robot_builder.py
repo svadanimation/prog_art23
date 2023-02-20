@@ -180,7 +180,7 @@ def push_button4(*args):
   print(f"{n} has arrived!")
 
 #Robot UI
-def robot_ui(new = True):
+def robot_ui(new = False):
 
     #Create New Scene
     if new == True:
