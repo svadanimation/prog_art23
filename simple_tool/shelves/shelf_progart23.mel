@@ -29,7 +29,7 @@ global proc shelf_progart23 () {
         -overlayLabelColor 0.8 0.8 0.8 
         -overlayLabelBackColor 0 0 0 0.5 
         -image "np_robot_builder_icon.png" 
-        -image1 "polyPipe.png" 
+        -image1 "np_robot_builder_icon.png" 
         -style "iconOnly" 
         -marginWidth 0
         -marginHeight 1
