@@ -25,9 +25,18 @@ import maya.cmds as mc
 
 def setup_asset():
     sel= mc.ls(sl=True)
-    window1='myWindow'
+
+    # NOTE =======================================
+    # filter this based on selection type, what happens if someone selects components
+    # try filtering for assemblies
+
+    window='myWindow'
     # Group will be created based on selection.
     # Group and Object will be renamed based on text pop up
+
+    # NOTE =======================================
+    # add a title to your dialog
+
     result = mc.promptDialog(
             title='',
             message='Enter Name:',
@@ -36,6 +45,12 @@ def setup_asset():
             cancelButton='Cancel',
             dismissString='Cancel')
     # Groups your selected object and creates a group hierarchy based on text in box
+
+    # NOTE =======================================
+    # try not to encumber your UI and execution code
+    # it would be far better to have your if result == 'OK':
+    # call a function like 'make_parent'
+
     if result == 'OK':
         text = mc.promptDialog(query=True, text=True)
         grp2 = mc.group(em=True,n=text)
@@ -59,6 +74,11 @@ def setup_asset():
         defaultButton='OK')
     #freezes transforms on object and deletes history     
 def freeze(*args):
+    # NOTE =======================================
+    # getting a fresh selection, unfortunately, you'd need to use 
+    # a class or the 'partial' module to pass in the selection
+
+    sel= mc.ls(sl=True)
     for obj in sel:
         bbox = mc.exactWorldBoundingBox()
         bottom = [(bbox[0] + bbox[3])/2, bbox[1], (bbox[2] + bbox[5])/2]
@@ -67,25 +87,35 @@ def freeze(*args):
         mc.delete(sel, constructionHistory = True)
         mc.deleteUI('myWindow')
     
-  
+# NOTE =======================================
+# Tidy up your dialog title and button names
+ 
 #snap sobject to ground plane, resets pivot to the bottom of the object, freezes transforms, and deletes history
 def snapbot(*args):
     sel = mc.ls(sl=True)
     if not sel:
-        cmds.confirmDialog(title='GOOSE!!', 
+        mc.confirmDialog(title='GOOSE!!', 
         message='Pls Make A Selection', 
         button=['Yeah..Im Soo Silly!'], 
         defaultButton='OK')        
-    bbox = cmds.exactWorldBoundingBox()
+    bbox = mc.exactWorldBoundingBox()
     bottom = [(bbox[0] + bbox[3])/2, bbox[1], (bbox[2] + bbox[5])/2]
     mc.xform(piv=bottom, ws=True)
     mc.move(0, y=True)
     mc.makeIdentity(apply=True, t=1, r=1, s=1, n=0)
     mc.delete(sel, constructionHistory = True)
     mc.deleteUI('myWindow')
+
+
 #Maya pop up window to select which option you would like to contiue with
+
+
+# NOTE =======================================
+# Use a descriptive title
+# call the window more descriptively than 'myWindow'. 'asset_window' for example
+# apply that symbol change throughout
+
 def popUp():
-    
     mc.window('myWindow', title= 'What Shall We Do?', widthHeight=(300,60) )
     mc.columnLayout( adjustableColumn=True )
     mc.button( label='Freeze Transform', command=freeze )
