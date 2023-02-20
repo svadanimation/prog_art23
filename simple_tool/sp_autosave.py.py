@@ -3,11 +3,8 @@ import time
 import threading
 import winsound
 
-def save_file():
-    cmds.file(save=True, force=True)
-    print("FILE SAVED")
-    
-
+'''this code will save your work in maya automatically
+ depending how much time do you want per each save '''
 
 def setInterval(interval):
     def decorator(function):
@@ -25,7 +22,7 @@ def setInterval(interval):
         return wrapper
     return decorator
 
-@setInterval(20.5)
+@setInterval(10.5)
 def function():
     winsound.Beep(529, 500)
     cmds.file(save=True, force=True)
