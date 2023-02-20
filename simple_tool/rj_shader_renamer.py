@@ -88,5 +88,6 @@ def select_mesh():
         mc.warning("Nothing selected.")
         return
     shader_renamer = Shader_renamer(sel)
-    
-select_mesh()
+
+if __name__ == '__main__':
+    select_mesh()

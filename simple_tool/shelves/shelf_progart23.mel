@@ -3,13 +3,15 @@ global proc shelf_progart23 () {
     global string $gBuffStr0;
     global string $gBuffStr1;
 
-// robot
+
+
+    //robot
     shelfButton
         -enableCommandRepeat 1
         -flexibleWidthType 3
-        -flexibleWidthValue 32
+        -flexibleWidthValue 35
         -enable 1
-        -width 35
+        -width 38
         -height 34
         -manage 1
         -visible 1
@@ -25,6 +27,7 @@ global proc shelf_progart23 () {
         -flipX 0
         -flipY 0
         -useAlpha 1
+        -font "plainLabelFont" 
         -imageOverlayLabel "RB" 
         -overlayLabelColor 0.8 0.8 0.8 
         -overlayLabelBackColor 0 0 0 0.5 
@@ -38,28 +41,210 @@ global proc shelf_progart23 () {
         -commandRepeatable 1
         -flat 1
     ;
-// undo redo    
+    //planets
     shelfButton
         -enableCommandRepeat 1
         -flexibleWidthType 3
-        -flexibleWidthValue 32
+        -flexibleWidthValue 35
         -enable 1
-        -width 35
+        -width 38
         -height 34
         -manage 1
         -visible 1
         -preventOverride 0
-        -annotation "undoredo" 
+        -annotation "planet" 
         -enableBackground 0
         -backgroundColor 0 0 0 
         -highlightColor 0.321569 0.521569 0.65098 
         -align "center" 
-        -label "undoredo" 
+        -label "planet" 
         -labelOffset 0
         -rotation 0
         -flipX 0
         -flipY 0
         -useAlpha 1
+        -font "plainLabelFont" 
+        -imageOverlayLabel "RB" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "am_planet_builder_icon.png" 
+        -image1 "am_planet_builder_icon.png" 
+        -style "iconOnly" 
+        -marginWidth 0
+        -marginHeight 1
+        -command "from importlib import reload\nfrom simple_tool import am_planet_builder\nreload(am_planet_builder)\nam_planet_builder.create_ui()" 
+        -sourceType "python" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    //prep asset
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 35
+        -enable 1
+        -width 38
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "asset" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "asset" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -imageOverlayLabel "AST" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "jr_prep_asset_icon.png" 
+        -image1 "jr_prep_asset_icon.png" 
+        -style "iconOnly" 
+        -marginWidth 0
+        -marginHeight 1
+        -command "from importlib import reload\nfrom simple_tool import jr_prep_asset\nreload(jr_prep_asset)\njr_prep_asset.setup_asset()" 
+        -sourceType "python" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    
+    //save
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 35
+        -enable 1
+        -width 38
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "auto save" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "auto save" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -imageOverlayLabel "" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "sp_auto_save.png" 
+        -image1 "sp_auto_save.png" 
+        -style "iconOnly" 
+        -marginWidth 0
+        -marginHeight 1
+        -command "from importlib import reload\nfrom simple_tool import sp_auto_save\nreload(sp_auto_save)\nsp_auto_save.setup_autosave()" 
+        -sourceType "python" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    //atom
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 35
+        -enable 1
+        -width 38
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "robot" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "robot" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -imageOverlayLabel "RB" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "ek_atom_icon.png" 
+        -image1 "ek_atom_icon.png" 
+        -style "iconOnly" 
+        -marginWidth 0
+        -marginHeight 1
+        -command "from importlib import reload\nfrom simple_tool import ek_load_atom\nreload(ek_load_atom)\nek_load_atom.jack_io()" 
+        -sourceType "python" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    //spline
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 35
+        -enable 1
+        -width 38
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "spline" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "spline" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -imageOverlayLabel "ST" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "kr_spline_pref.png" 
+        -image1 "kr_spline_pref.png" 
+        -style "iconOnly" 
+        -marginWidth 0
+        -marginHeight 1
+        -command "from importlib import reload\nfrom simple_tool import kr_spline_pref\nreload(kr_spline_pref)\nkr_spline_pref.UI()" 
+        -sourceType "python" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    //undo
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 35
+        -enable 1
+        -width 38
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "undo redo" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "undo redo" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
         -imageOverlayLabel "UN" 
         -overlayLabelColor 0.8 0.8 0.8 
         -overlayLabelBackColor 0 0 0 0.5 
@@ -68,7 +253,43 @@ global proc shelf_progart23 () {
         -style "iconOnly" 
         -marginWidth 0
         -marginHeight 1
-        -command "from importlib import reload\nfrom simple_tool import rr_undo_redo\nreload(rr_undo_redo)\nun=rr_undo_redo.Undo_Redo_Window()" 
+        -command "from importlib import reload\nfrom simple_tool import rr_undo_redo\nreload(rr_undo_redo)\nuser_window = rr_undo_redo.Undo_Redo_Window()" 
+        -sourceType "python" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    //shader renamer
+    shelfButton
+        -enableCommandRepeat 1
+        -flexibleWidthType 3
+        -flexibleWidthValue 35
+        -enable 1
+        -width 38
+        -height 34
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "shader renamer" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "shader renamer" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -imageOverlayLabel "SR" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "rj_shader_renamer_icon.PNG" 
+        -image1 "rj_shader_renamer_icon.PNG" 
+        -style "iconOnly" 
+        -marginWidth 0
+        -marginHeight 1
+        -command "from importlib import reload\nfrom simple_tool import rj_shader_renamer\nreload(rj_shader_renamer)\nuser_window = rj_shader_renamer.select_mesh()" 
         -sourceType "python" 
         -commandRepeatable 1
         -flat 1
@@ -87,5 +308,6 @@ global proc shelf_progart23 () {
         -style "shelf" 
         -horizontal 0
     ;
+    
 
 } 

@@ -106,6 +106,7 @@ def create_solar_system(num_planets):
         assign_color(planet_group, [r,g,b], shader_names, material_name)
         mc.move(i*20, 0, 0, planet_group)
 
-create_ui()
+if __name__=='__main__':
+    create_ui()
 
 
