@@ -86,8 +86,11 @@ def get_queue(redo=False, strip=False):
     
     return queue
 
-empty_undo_list = "Nothing to undo"
-empty_redo_list = "Nothing to redo"
+
+
+
+EMPTY_UNDO = "Nothing to undo"
+EMPTY_REDO = "Nothing to redo"
 
 class Undo_Redo_Window():
     
@@ -115,21 +118,22 @@ class Undo_Redo_Window():
         # Creating undo/redo widgets
         self.master_layout= mc.columnLayout(adj=True)
         mc.separator(h=20)
-        if get_queue():
+        undo_queue = get_queue()
+        if undo_queue:
             self.undo_list = mc.textScrollList(
                                                 nr=20, 
                                                 ams=False, 
-                                                a=get_queue(),
+                                                a=undo_queue,
                                                 w=400, 
                                                 fn='fixedWidthFont',
                                                 hlc=[0.1, 0.1, 0.1],
                                                 dcc=self.undo_action    )
    
-        elif not get_queue():
+        else:
             self.undo_list = mc.textScrollList(
                                                 nr=20, 
                                                 ams=False, 
-                                                a=empty_undo_list,
+                                                a=EMPTY_UNDO,
                                                 w=400, 
                                                 fn='fixedWidthFont',
                                                 hlc=[0.1, 0.1, 0.1]    )
@@ -156,13 +160,15 @@ class Undo_Redo_Window():
             self.redo_list = mc.textScrollList(
                                                 nr=20, 
                                                 ams=False, 
-                                                a=empty_redo_list, 
+                                                a=EMPTY_REDO, 
                                                 w=400,
                                                 fn='fixedWidthFont',
                                                 hlc=[0.1, 0.1, 0.1]    )
         mc.setParent('..')
         
+
         # Making window visible
+        # mc.window(self.window_name, e=True, wh=(200,320))
         mc.showWindow(self.window_name)
         
     # Allow user to update lists if changes have been made since
@@ -177,7 +183,7 @@ class Undo_Redo_Window():
         elif not get_queue():
             self.undo_list = mc.textScrollList(
                                                 self.undo_list, 
-                                                a=empty_undo_list,
+                                                a=EMPTY_UNDO,
                                                 ra=True, 
                                                 e=True    )                   
         if get_queue(redo=True):
@@ -190,9 +196,51 @@ class Undo_Redo_Window():
         elif not get_queue(redo=True):
             self.redo_list = mc.textScrollList(
                                                 self.redo_list, 
-                                                a=empty_redo_list, 
+                                                a=EMPTY_REDO, 
                                                 ra=True, 
                                                 e=True    )
+
+    '''
+    executes in reverse order
+    1. update the list
+    2. prep the states
+    3. do the undos
+
+
+    # NOTE !!!!!!
+    # DO NOT consider this a correct pattern to follow
+    # Demo purposes only
+    def update_action(self, amount, redo=False):
+        
+        for i in range(amount):
+            if redo:
+                mc.redo()
+            else:
+                mc.undo()
+        if redo:
+            action = self.redo_action
+            ui_list = self.redo_list
+            empty = EMPTY_REDO
+        else:
+            action = self.undo_action
+            ui_list = self.undo_list
+            empty = EMPTY_UNDO
+
+        queue = get_queue(redo=redo)
+        if queue:
+            mc.textScrollList(
+                ui_list,
+                dcc=self.update_action(redo), 
+                a=queue, 
+                ra=True, 
+                e=True    )
+        else:
+            mc.textScrollList(
+                ui_list, 
+                a=empty,
+                ra=True, 
+                e=True    ) 
+    '''
 
     # Allow user to undo/redo when an item on the list is double-clicked
     def undo_action(self):
@@ -204,30 +252,33 @@ class Undo_Redo_Window():
             print("Undoing!")
             mc.undo()
 
-        if get_queue():
+        undo_queue = get_queue()
+
+        if undo_queue:
             self.undo_list = mc.textScrollList(
                                                 self.undo_list,
                                                 dcc=self.undo_action, 
-                                                a=get_queue(), 
+                                                a=undo_queue, 
                                                 ra=True, 
                                                 e=True    )
-        elif not get_queue():
+        else:
             self.undo_list = mc.textScrollList(
                                                 self.undo_list, 
-                                                a=empty_undo_list,
+                                                a=EMPTY_UNDO,
                                                 ra=True, 
-                                                e=True    )                   
-        if get_queue(redo=True):
+                                                e=True    ) 
+        redo_queue = get_queue(redo=True)                     
+        if redo_queue:
             self.redo_list = mc.textScrollList(
                                                 self.redo_list,
                                                 dcc=self.redo_action, 
-                                                a=reversed(get_queue(redo=True)), 
+                                                a=reversed(redo_queue), 
                                                 ra=True, 
                                                 e=True    )
-        elif not get_queue(redo=True):
+        else:
             self.redo_list = mc.textScrollList(
                                                 self.redo_list, 
-                                                a=empty_redo_list, 
+                                                a=EMPTY_REDO, 
                                                 ra=True, 
                                                 e=True    )
 
@@ -250,7 +301,7 @@ class Undo_Redo_Window():
         elif not get_queue(redo=True):
             self.redo_list = mc.textScrollList(
                                                 self.redo_list, 
-                                                a=empty_redo_list, 
+                                                a=EMPTY_REDO, 
                                                 ra=True, 
                                                 e=True    )
         
@@ -264,7 +315,7 @@ class Undo_Redo_Window():
         elif not get_queue():
             self.undo_list = mc.textScrollList(
                                                 self.undo_list, 
-                                                a=empty_undo_list,
+                                                a=EMPTY_UNDO,
                                                 ra=True, 
                                                 e=True    )   
 
