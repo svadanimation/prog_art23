@@ -25,7 +25,7 @@ def write_text(text_to_append):
 
     def read_text():
         with open(txt_path, 'r') as f:
-            print(f.read())
+            print(f'The file \'{TEXT_FILE}\' says: \n{f.read()}')
 
     read_text()
 
@@ -42,3 +42,9 @@ def write_data(data_to_append):
 if __name__ == '__main__':
     write_text(text)
     write_data(data)
+
+'''
+
+    sep funcs, pass args 'what to append' and 'file' and return
+
+'''
