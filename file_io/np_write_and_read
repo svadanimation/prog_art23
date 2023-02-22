@@ -1,9 +1,16 @@
 import os
 file_path = os.path.realpath("U://Nathanael Perez/Classes/W23/Programming for Artists/my_file.txt")
 
-n = open(file_path, "w")
-n.write("Hello world!")
-n.close()
+np = open(file_path, "w")
+try:
+    np.write("Hello world!")
+except Exception as e:
+    print(f"An error occurred while writing to the file: {e}")
+finally:
+    np.close()
 
-n = open(file_path, "r")
-print(n.read())
+np = open(file_path, "r")
+try:
+    print(np.read())
+except Exception as e:
+    print(f"An error occured while reading the file: {e}")
