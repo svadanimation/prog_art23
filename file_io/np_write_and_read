@@ -1,8 +1,7 @@
 import os
-
 file_path = os.path.realpath("U://Nathanael Perez/Classes/W23/Programming for Artists/my_file.txt")
 
-n = open(file_path, "w)
+n = open(file_path, "w")
 n.write("Hello world!")
 n.close()
 
