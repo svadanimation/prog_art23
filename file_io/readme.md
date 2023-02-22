@@ -2,10 +2,10 @@
 
 Create a script that reads and writes text and json files
 
-- create a constant string `filepath` with the value `Z:`
+- create a constant string `directory` with the value `Z:`
 - create a constant string `text_file` with the value `text_file.txt`
 - create a constant string `json_file` with the value `json_file.json`
-- use the os module to assemble two file paths
+- use the os.path.join  to assemble two file paths, `json_path` and `text_path`
 
 ---
 
