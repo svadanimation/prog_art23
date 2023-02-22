@@ -1,0 +1,45 @@
+#Imports
+import os
+import json
+import re
+import pprint as pprint
+
+#Constants
+filepath = "Z:"
+text_file = "text_file.text"
+json_file = "json_file.json"
+
+#Paths
+textpath = os.path.join(filepath, "//Nathanael Perez/Classes/W23/Programming for Artists/", text_file)
+jsonpath = os.path.join(filepath, "//Nathanael Perez/Classes/W23/Programming for Artists/", json_file)
+
+#Variables
+text = "abc123"
+data = {"a": 1, "b": 2, "c": 3, "d": 4, "e": {"everyman": 1}}
+
+#Functions
+def rw_text():
+    def write_text():
+        with open(textpath, "w") as t:
+            t.write(text)
+        edited_text = None
+    def read_text():
+        with open(textpath, "r") as t:
+            for line in t:  
+                match = re.match(r"([a-z]+)([0-9]+)", line)
+            if match:
+                items = match.groups()
+
+def rw_json():
+    def write_json():
+        with open(jsonpath, "w") as j:
+            json.dump(data, j)
+        edited_json = None
+    def read_json():
+        with open(jsonpath, "r") as j:
+            edited_json = j.read()
+
+if __name__ == "__main__":
+    read_and_write()
+    print(edited_text)
+    pprint(edited_json)
