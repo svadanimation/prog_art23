@@ -29,6 +29,9 @@ def rw_text():
                 match = re.match(r"([a-z]+)([0-9]+)", line)
             if match:
                 items = match.groups()
+            edited_text = t.read()
+    def print_text():
+        print(edited_text)
 
 def rw_json():
     def write_json():
@@ -38,8 +41,9 @@ def rw_json():
     def read_json():
         with open(jsonpath, "r") as j:
             edited_json = j.read()
+    def print_json():
+        pprint(edited_json)
 
 if __name__ == "__main__":
-    read_and_write()
-    print(edited_text)
-    pprint(edited_json)
+    rw_text()
+    rw_json()
