@@ -30,7 +30,8 @@ def rw_text(path):
             if match:
                 items = match.groups()
             text_info = t.read()
-        return text_info
+        print(text_info)
+        #return text_info
 
 #Json Functions
 def rw_json(path):
@@ -41,10 +42,10 @@ def rw_json(path):
     def read_json(path):
         with open(path, "r") as j:
             json_info = json.load(j)
-        return json_info
+        print(json_info)
+        #return json_info
 
 #Script Execution
 if __name__ == "__main__":
-    text_results = rw_text(text_path)
-    print(f"The letters and numbers contained in this string are as follows: {text_results}")
-    pprint(rw_json(json_path))
+    rw_text(text_path)
+    rw_json(json_path)
