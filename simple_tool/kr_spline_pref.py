@@ -47,8 +47,8 @@ def checkSettings():
 def updateButtons(editVal):
     spline, stepped = checkSettings()
     #The buttons will be active based on which mode we are in
-    mc.button("btnSpline", e=editVal, label="Change defualt to Splined", command=setSpliningPrefs, enable=spline)
-    mc.button("btnStep", e=editVal, label="Change defualt to Stepped", command=setBlockingPrefs, enable=stepped)
+    mc.button("btnSpline", e=editVal, label="Change default to Splined", command=setSpliningPrefs, enable=spline)
+    mc.button("btnStep", e=editVal, label="Change default to Stepped", command=setBlockingPrefs, enable=stepped)
 
 #This function labels the buttons 
 def updateText(editVal):
