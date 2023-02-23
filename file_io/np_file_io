@@ -45,5 +45,6 @@ def rw_json(path):
 
 #Script Execution
 if __name__ == "__main__":
-    print(rw_text(text_path))
+    text_results = rw_text(text_path)
+    print(f"The letters and numbers contained in this string are as follows: {text_results}")
     pprint(rw_json(json_path))
