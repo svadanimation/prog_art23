@@ -2,7 +2,7 @@
 import os
 import json
 import re
-import pprint as pprint
+import pprint
 
 #Constants
 directory = 'Z:'
@@ -34,9 +34,8 @@ def rw_text(path, w = True):
             for line in t:  
                 match = re.match(r'([a-z]+)([0-9]+)', line)
             if match:
-                items = match.groups()
-            text_info = t.read()
-            return text_info
+                text_info = match.groups()
+                return f'The file \'{text_file}\' says: \'{text_info}'
 
 #Json Functions
 def rw_json(path, w = True):
@@ -51,7 +50,7 @@ def rw_json(path, w = True):
 
 #Script Execution
 if __name__ == '__main__':
-    rw_text(text_path, True)
-    print(rw_text(text_path, False))
-    rw_json(json_path, True)
-    print(rw_json(json_path, False))
+    rw_text(text_path, w = True)
+    print(rw_text(text_path, w = False))
+    rw_json(json_path, w = True)
+    pprint.pprint(rw_json(json_path, w = False))
