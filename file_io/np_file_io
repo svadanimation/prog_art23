@@ -5,45 +5,45 @@ import re
 import pprint as pprint
 
 #Constants
-filepath = "Z:"
+directory = "Z:"
 text_file = "text_file.text"
 json_file = "json_file.json"
 
 #Paths
-textpath = os.path.join(filepath, "//Nathanael Perez/Classes/W23/Programming for Artists/", text_file)
-jsonpath = os.path.join(filepath, "//Nathanael Perez/Classes/W23/Programming for Artists/", json_file)
+text_path = os.path.join(directory, "//Nathanael Perez/Classes/W23/Programming for Artists/", text_file)
+json_path = os.path.join(directory, "//Nathanael Perez/Classes/W23/Programming for Artists/", json_file)
 
 #Variables
 text = "abc123"
-data = {"a": 1, "b": 2, "c": 3, "d": 4, "e": {"everyman": 1}}
+data = {"a": 1, "b": 2, "c": 3, "d": 4, "e": {"everyman": 999}}
 
-#Functions
-def rw_text():
-    def write_text():
-        with open(textpath, "w") as t:
+#Text Functions
+def rw_text(path):
+    def write_text(path):
+        with open(path, "w") as t:
             t.write(text)
-        edited_text = None
-    def read_text():
-        with open(textpath, "r") as t:
+        text_info = None
+    def read_text(path):
+        with open(path, "r") as t:
             for line in t:  
                 match = re.match(r"([a-z]+)([0-9]+)", line)
             if match:
                 items = match.groups()
-            edited_text = t.read()
-    def print_text():
-        print(edited_text)
+            text_info = t.read()
+        return text_info
 
-def rw_json():
-    def write_json():
-        with open(jsonpath, "w") as j:
+#Json Functions
+def rw_json(path):
+    def write_json(path):
+        with open(path, "w") as j:
             json.dump(data, j)
-        edited_json = None
-    def read_json():
-        with open(jsonpath, "r") as j:
-            edited_json = j.read()
-    def print_json():
-        pprint(edited_json)
+        json_info = None
+    def read_json(path):
+        with open(path, "r") as j:
+            json_info = json.load(j)
+        return json_info
 
+#Script Execution
 if __name__ == "__main__":
-    rw_text()
-    rw_json()
+    print(rw_text(text_path))
+    pprint(rw_json(json_path))
