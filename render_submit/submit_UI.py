@@ -23,7 +23,7 @@ def cell_color(row, column):
     lvl = hilight[row-1][1]+1
     factor = 150
 
-    value =1.0/float(lvl)*factor 
+    value =1.0/float(lvl)*factor
     return [value, value, value]
 
 
@@ -33,28 +33,28 @@ def validateQubeDictUI(jobs):
     # only show these keys
     keys = ['name', 'cpus', 'imgHeight', 'imgWidth', 'padding', 'range', 'imgFile', 'renderpath', 'cluster', 'priority', 'reservations']
     jobsLength = filter_keys(jobs, keys)
-    
+
     window = mc.window('submitDict', widthHeight=(400, 300))
     form = mc.formLayout()
     table = mc.scriptTable(rows=jobsLength, columns=2, label=[(1,"Key"), (2,"Value")], cellChangedCmd=edit_cell)
     mc.scriptTable(table, cw = [1,250], edit=True)
     mc.scriptTable(table, cw = [2,500], edit=True)
     mc.scriptTable(table, edit=True, cbc=cell_color)
-    
-    
+
+
     okButton = mc.button('okButton', label="Submit", command=partial(scrapeQubeDict, jobs, table))
     cancelButton = mc.button(label="Cancel",command="mc.deleteUI( 'submitDict' )")
-    
+
     mc.formLayout(form, edit=True, attachForm=[(table, 'top', 0), (table, 'left', 0), (table, 'right', 0), (okButton, 'left', 0), (okButton, 'bottom', 0), (cancelButton, 'bottom', 0), (cancelButton, 'right', 0)], attachControl=(table, 'bottom', 0, okButton), attachNone=[(okButton, 'top'),(cancelButton, 'top')],  attachPosition=[(okButton, 'right', 0, 50), (cancelButton, 'left', 0, 50)] )
-    
-    
+
+
     visualise_dict(jobs, table=table, keys=keys)
     mc.setFocus(okButton)
     mc.showWindow( window )
 
-    
+
 def scrapeQubeDict(jobs, table, *args):
-    renderPath = jobs['vray_job']['renderpath']    
+    renderPath = jobs['vray_job']['renderpath']
     rows = mc.scriptTable(table, rows=True, query=True)
     for row in range(1,rows):
         key = mc.scriptTable(table, cellIndex=(row,1), cellValue=True, query=True)[0]
@@ -62,12 +62,12 @@ def scrapeQubeDict(jobs, table, *args):
         if value != '{}':
             #required because of some funky unicode encoding that happens during exec
             value = "'" + value.replace('\\', '\\\\') + "'"
-            
-            
+
+
         keys =  key.split(':')
         path = ''
         for k in keys:
-            path += "['" + k + "']"    
+            path += "['" + k + "']"
         #print path, value
         exec('jobs' + path +' = ' + value)
         #print mc.scriptTable(table, cellIndex=(row,2), cellValue=True, query=True)
@@ -77,15 +77,15 @@ def scrapeQubeDict(jobs, table, *args):
     #Need to update the package cmdline to reflect changes to args
     #============================================================================================
 
-    print ("Updating cmdline path") 
+    print ("Updating cmdline path")
     newPath = jobs['vray_job']['renderpath']
     cmdline = jobs['vray_job']['package']['cmdline']
     imgfile = jobs['vray_job']['package']['-imgFile']
     scenefile = jobs['vray_job']['package']['-sceneFile']
-    jobs['vray_job']['package']['cmdline'] = cmdline.replace(renderPath, newPath) 
+    jobs['vray_job']['package']['cmdline'] = cmdline.replace(renderPath, newPath)
     jobs['vray_job']['package']['-imgFile'] = imgfile.replace(renderPath, newPath)
     jobs['vray_job']['package']['-sceneFile'] = scenefile.replace(renderPath, newPath)
-    
+
     return jobs
 
 
@@ -93,25 +93,25 @@ def scrapeQubeDict(jobs, table, *args):
 index = [0]
 def visualise_dict(d,lvl=0,parent='', table='', keys=[]):
     global hilight
-    
-    
-    # go through the dictionary alphabetically 
+
+
+    # go through the dictionary alphabetically
     for k in sorted(d):
         #print parent
         #print index
-        
+
 
         # print the table header if we're at the beginning
         if lvl == 0 and k == sorted(d)[0]:
-            index[0] = 0 
+            index[0] = 0
             hilight = []
 
             #print('{:<45} {:<15} {:<10}'.format('KEY','LEVEL','TYPE'))
             #print('-'*79)
-        
-          
+
+
         #print index[0]
-        
+
         indent = '  '*lvl # indent the table to visualise hierarchy
         t = str(type(d[k]))
         v = str((d[k]))
@@ -125,10 +125,10 @@ def visualise_dict(d,lvl=0,parent='', table='', keys=[]):
             index[0]+=1
             mc.scriptTable(table, cellIndex=(index[0],1), edit=True, cellValue=str(parent+k))
             mc.scriptTable(table, cellIndex=(index[0],2), edit=True, cellValue=str(v))
-             
+
 
             hilight.append((index[0],lvl))
-            
+
 
 
         # if the entry is a dictionary

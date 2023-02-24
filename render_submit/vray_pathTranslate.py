@@ -3,12 +3,12 @@ Post translate paths in vray scenes
 '''
 
 # built-ins
-import os 
+import os
 import vray.utils as vu
 
 # internal
 from render_submit import constants
-from render_submit import render_utils 
+from render_submit import render_utils
 
 
 GEOMETRY = 'GeomMeshFile'
@@ -33,15 +33,15 @@ def find_and_process_paths(debug=True):
     for node in nodes:
         if debug: print (f'Node: {node}')
         path = node.get('file')
-        path = render_utils.uncMapper(path, 
-                                     remove = constants.NETWORK_SUFFIX, 
+        path = render_utils.uncMapper(path,
+                                     remove = constants.NETWORK_SUFFIX,
                                      drivetable=local_drive_table)
         path = path.replace(os.sep, '/')
         if debug: print (f'Path: {path}')
         node.set('file', str(path))
-        
+
     if debug: print ('Finding scenes')
-    
+
     scenes=[]
     scenes.extend( vu.findByType(SCENE) )
 
@@ -49,12 +49,12 @@ def find_and_process_paths(debug=True):
         if debug: print (f'Scene {scene}')
 
         path = scene.get('filepath')
-        path = render_utils.uncMapper(path, 
-                                     remove = constants.NETWORK_SUFFIX, 
+        path = render_utils.uncMapper(path,
+                                     remove = constants.NETWORK_SUFFIX,
                                      drivetable=local_drive_table)
         path = path.replace(os.sep, '/')
         if debug: print ('Path: {path}')
         scene.set('filepath', str(path))
-        
+
 if __name__ == "__main__":
     find_and_process_paths()

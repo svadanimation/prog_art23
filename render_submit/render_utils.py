@@ -1,3 +1,6 @@
+'''
+A collection of utility functions for render submission
+'''
 import platform
 import os
 import re
@@ -12,17 +15,17 @@ def get_renderable_camera():
     :rtype: list of str
     '''
     cameras = mc.listCameras(p=True)
-    renderCam =  []
+    render_cam =  []
     for camera in cameras:
         if mc.getAttr(camera +'.renderable'):
-            renderCam.append(camera)
-    if len(renderCam) > 1:
-        mc.warning(f'More than one render camera. Using {renderCam[0]}' )
-    elif not len(renderCam):
-        renderCam.append('perspShape')
-        mc.warning(f'No rendearble cameras found. Using {renderCam[0]}' )
-    return renderCam
- 
+            render_cam.append(camera)
+    if len(render_cam) > 1:
+        mc.warning(f'More than one render camera. Using {render_cam[0]}' )
+    elif len(render_cam) <= 0:
+        render_cam.append('perspShape')
+        mc.warning(f'No rendearble cameras found. Using {render_cam[0]}' )
+    return render_cam
+
 
 def build_directory(filepath=''):
     '''Creates a render directory relative to the out
@@ -43,7 +46,7 @@ def build_directory(filepath=''):
             return True
     else:
         print(f'Directory exists: {filepath}')
-        return True  
+        return True
 
 def plugin_check(plugins):
     '''checks the loaded state of a plugin and loads it if needed
@@ -52,7 +55,7 @@ def plugin_check(plugins):
 
     :param plugins: a list of strings formatted in name.ext
     :type plugins: string or list
-    ''' 
+    '''
     plugins = plugins if isinstance(plugins, list) else [plugins]
 
     loaded_plugins =  mc.pluginInfo( query=True, listPlugins=True )
@@ -64,7 +67,7 @@ def plugin_check(plugins):
                 mc.loadPlugin( plugin )
             except:
                 success = False
-                mc.warning('Could not load plugin {}'.format(plugin))
+                mc.warning(f'Could not load plugin {plugin}')
     return success
 
 def unc_drive_table(remove=''):
@@ -81,14 +84,14 @@ def unc_drive_table(remove=''):
         letters = re.findall(".?:", drives)
         networks = re.findall(r"\\\\.*$", drives, re.MULTILINE)
         networks = [n.rstrip().replace(remove, '') for n in networks]
-        driveMap = dict(zip(letters, networks))
-            
-        if driveMap:
-            return driveMap    
+        drivemap = dict(zip(letters, networks))
+
+        if drivemap:
+            return drivemap
     else:
         print("Not submitting from windows, no drive letter substitution")
-    
-def unc_mapper(path, remove='', drivetable = {}):
+
+def unc_mapper(path, remove='', drivetable = None):
     '''Remap a path from named letters to unc paths
 
     :param path: path
@@ -106,10 +109,10 @@ def unc_mapper(path, remove='', drivetable = {}):
     drive, tail = os.path.splitdrive(path)
     print (drive, tail)
     if ':' not in drive: return path.replace(remove,'')
-    
+
     # we may not have a mapping for the drive, like a removable disk, so skip if that's the case.
     if drive not in drivetable: return path.replace(remove,'')
-    
+
     if drivetable[drive]: return os.path.abspath(drivetable[drive] + tail)
 
 if __name__ == '__main__':
