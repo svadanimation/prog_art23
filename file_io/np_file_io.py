@@ -10,8 +10,8 @@ text_file = 'text_file.txt'
 json_file = 'json_file.json'
 
 #Paths
-text_path = os.path.join(directory + text_file)
-json_path = os.path.join(directory + json_file)
+text_path = os.path.join(directory, text_file)
+json_path = os.path.join(directory, json_file)
 
 #Variables
 text = 'abc123'
@@ -24,25 +24,25 @@ data = {
         }
 
 #Text Functions
-def rw_text(path, w = True):
+def rw_text(path, content = ''):
     text_info = None
-    if w:
+    if content:
         with open(path, 'w') as t:
-            t.write(text)
+            t.write(content)
     else:
         with open(path, 'r') as t:
             for line in t:  
                 match = re.match(r'([a-z]+)([0-9]+)', line)
             if match:
                 text_info = match.groups()
-                return f'The file \'{text_file}\' says: \'{text_info}'
+                return f'The file named {text_file} says: {text_info}'
 
 #Json Functions
-def rw_json(path, w = True):
+def rw_json(path, content = ''):
     json_info = None
-    if w:
+    if content:
          with open(path, 'w') as j:
-            json.dump(data, j)
+            json.dump(content, j)
     else:
         with open(path, 'r') as j:
             json_info = json.load(j)
@@ -50,7 +50,7 @@ def rw_json(path, w = True):
 
 #Script Execution
 if __name__ == '__main__':
-    rw_text(text_path, w = True)
-    print(rw_text(text_path, w = False))
-    rw_json(json_path, w = True)
-    pprint.pprint(rw_json(json_path, w = False))
+    rw_text(text_path, content = text)
+    print(rw_text(text_path, content = ''))
+    rw_json(json_path, content = data)
+    pprint.pprint(rw_json(json_path, content = ''))
