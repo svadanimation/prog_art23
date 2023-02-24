@@ -98,7 +98,7 @@ def renderShots(export=False):
             
             if progress('Translating seq {} shot {} '.format(seq, shot)): return
             
-            vss.vray_standalone(pipeline=True, show=False)
+            vss.vray_standalone(pipeline=True, show_UI=False)
             
             if progress('Submitting seq {} shot {} '.format(seq, shot)): return
                     
