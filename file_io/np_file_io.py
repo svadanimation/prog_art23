@@ -2,50 +2,55 @@
 import os
 import json
 import re
-import pprint as pprint
+import pprint
 
 #Constants
-directory = "Z:"
-text_file = "text_file.text"
-json_file = "json_file.json"
+directory = 'Z:'
+text_file = 'text_file.txt'
+json_file = 'json_file.json'
 
 #Paths
-text_path = os.path.join(directory, "//Nathanael Perez/Classes/W23/Programming for Artists/", text_file)
-json_path = os.path.join(directory, "//Nathanael Perez/Classes/W23/Programming for Artists/", json_file)
+text_path = os.path.join(directory, text_file)
+json_path = os.path.join(directory, json_file)
 
 #Variables
-text = "abc123"
-data = {"a": 1, "b": 2, "c": 3, "d": 4, "e": {"everyman": 999}}
+text = 'abc123'
+data = {
+        'a': 1, 
+        'b': 2, 
+        'c': 3, 
+        'd': 4, 
+        'e': {'egg': 666, 'everyman': 999}
+        }
 
 #Text Functions
-def rw_text(path):
-    def write_text(path):
-        with open(path, "w") as t:
-            t.write(text)
-        text_info = None
-    def read_text(path):
-        with open(path, "r") as t:
+def rw_text(path, content = ''):
+    text_info = None
+    if content:
+        with open(path, 'w') as t:
+            t.write(content)
+    else:
+        with open(path, 'r') as t:
             for line in t:  
-                match = re.match(r"([a-z]+)([0-9]+)", line)
+                match = re.match(r'([a-z]+)([0-9]+)', line)
             if match:
-                items = match.groups()
-            text_info = t.read()
-        print(text_info)
-        #return text_info
+                text_info = match.groups()
+                return f'The file named {text_file} says: {text_info}'
 
 #Json Functions
-def rw_json(path):
-    def write_json(path):
-        with open(path, "w") as j:
-            json.dump(data, j)
-        json_info = None
-    def read_json(path):
-        with open(path, "r") as j:
+def rw_json(path, content = ''):
+    json_info = None
+    if content:
+         with open(path, 'w') as j:
+            json.dump(content, j)
+    else:
+        with open(path, 'r') as j:
             json_info = json.load(j)
-        print(json_info)
-        #return json_info
+            return json_info
 
 #Script Execution
-if __name__ == "__main__":
-    rw_text(text_path)
-    rw_json(json_path)
+if __name__ == '__main__':
+    rw_text(text_path, content = text)
+    print(rw_text(text_path, content = ''))
+    rw_json(json_path, content = data)
+    pprint.pprint(rw_json(json_path, content = ''))
