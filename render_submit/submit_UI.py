@@ -1,137 +1,181 @@
+'''
+    Display a validation UI for the Qube job dictionary
+
+'''
 
 import maya.cmds as mc
-from functools import partial
-
-# from render_submit import vray_standaloneSubmit as vss
-
-def edit_cell(row, column, value):
-    return 1
+from render_submit import vray_submit
 
 
-def filter_keys(d: dict, keys: list):
-    count = []
-    for k, v in d.items():
-        if isinstance(v, dict):
-            filter_keys(v, count, keys)
-        else:
-            if k in keys:
-                count.append(1)
-    return len(count)
+class SubmitUI(object):
+    '''
+    Display a validation UI for the Qube job dictionary
+    Creates a window with a table of the jobs and a button to submit the jobs
 
-def cell_color(row, column):
-    global hilight
-    lvl = hilight[row-1][1]+1
-    factor = 150
+    '''
+    WINDOW = 'submit_ui'
+    keys = [['vray_job','name'],
+            ['vray_job', 'cpus'],
+            ['vray_job', 'package', '-imgHeight'],
+            ['vray_job', 'package', '-imgWidth'],
+            ['vray_job', 'package', 'padding'],
+            ['vray_job', 'package', 'range'],
+            ['vray_job', 'package', 'imgFile'],
+            ['vray_job', 'package', 'renderpath'],
+            ['vray_job', 'cluster'],
+            ['vray_job', 'priority'],
+            ['vray_job', 'reservations'],
+            ['vray_job', 'validate_fileMinSize']]
 
-    value =1.0/float(lvl)*factor
-    return [value, value, value]
+    def __init__(self, jobs: dict = None):
+        self.jobs = jobs
+        if not jobs:
+            self.jobs = vray_submit.get_jobs()
+        self.window = None
+        self.form = None
+        self.table = None
+        self.ok_button = None
+        self.cancel_button = None
+        self.hilight = None
+        self.job_count = None
+
+        vray_submit.vray_config()
+
+    def show(self):
+        '''Show the UI'''
+        if mc.window( self.WINDOW, q = 1, ex = 1 ):
+            mc.deleteUI( self.WINDOW)
+        mc.showWindow( self.window )
+
+    @staticmethod
+    def deep_get(_dict, keys, default=None):
+        """
+        Safely gets a value in a nested dictionary given a list of keys.
+
+        Args:
+            nested_dict (dict): The nested dictionary to update.
+            key_list (list): A list of keys specifying the path to the value to update.
+            default: The default value to return if the key is not found.
+
+        Returns:
+            Requested key, None
+        """
+        for key in keys:
+            if isinstance(_dict, dict):
+                _dict = _dict.get(key, default)
+            else:
+                return default
+        return _dict
+
+    @staticmethod
+    def safe_nested_dict_update(nested_dict, key_list, value, default=None):
+        """
+        Safely updates a value in a nested dictionary given a list of keys.
+        If intermediate dictionaries or the key do not exist,
+        they are created with the specified default value.
+
+        Args:
+            nested_dict (dict): The nested dictionary to update.
+            key_list (list): A list of keys specifying the path to the value to update.
+            value: The new value to set.
+            default: The default value to use when creating intermediate dictionaries.
+
+        Returns:
+            None
+        """
+        if not isinstance(nested_dict, dict):
+            return
+
+        for key in key_list[:-1]:
+            nested_dict = nested_dict.setdefault(key, {})
+            if not isinstance(nested_dict, dict):
+                return
+
+        nested_dict.setdefault(key_list[-1], value if value is not None else default)
+
+    def edit_cell(self):
+        '''Callback for when a cell is edited in the table'''
+        return 1
+
+    def validate_submit_dict(self):
+        '''Validate the Qube job dictionary
+
+        :param jobs: dictonary of qube jobs
+        :type jobs: dict
+        '''
+
+        # only show these keys
+
+        self.window = mc.window('submit_ui', widthHeight=(400, 300))
+        self.form = mc.formLayout()
+        self.table = mc.scriptTable(rows=len(self.keys),
+                            columns=2,
+                            label=[(1,"Key"), (2,"Value")],
+                            cellChangedCmd=self.edit_cell)
+        mc.scriptTable(self.table, cw = [1,250], edit=True)
+        mc.scriptTable(self.table, cw = [2,500], edit=True)
+
+        ok_button = mc.button('okButton',
+                            label="Submit",
+                            command=self.scrape_table)
+
+        self.cancel_button = mc.button(label="Cancel",command=f'mc.deleteUI({self.window})')
+
+        mc.formLayout(self.form,
+                    edit=True,
+                    attachForm=[(self.table, 'top', 0),
+                                (self.table, 'left', 0),
+                                (self.table, 'right', 0),
+                                (self.ok_button, 'left', 0),
+                                (self.ok_button, 'bottom', 0),
+                                (self.cancel_button, 'bottom', 0),
+                                (self.cancel_button, 'right', 0)],
+                    attachControl=(self.table, 'bottom', 0, ok_button),
+                    attachNone=[(self.ok_button, 'top'),(self.cancel_button, 'top')],
+                    attachPosition=[(self.ok_button, 'right', 0, 50),
+                                    (self.cancel_button, 'left', 0, 50)] )
+
+        self.draw_table()
+        mc.setFocus(ok_button)
+
+        self.show()
+
+    def draw_table(self):
+        '''Fill the table with the selected items from the jobs dictionary
+        '''
+
+        for i, key in enumerate(self.keys):
+            value =''
+            if isinstance(key, list):
+                value = self.deep_get(self.jobs, key)
+            else:
+                value = self.jobs[key]
+
+            colors = [(0.5,0.5,0.5), (0.3,0.3,0.3)]
+            color = colors[i % 2]
+            mc.scriptTable(self.table, cellIndex=(i,1),
+                           edit=True, cellValue=str(':'.join(key)), cellColor=color)
+            mc.scriptTable(self.table, cellIndex=(i,2),
+                           edit=True, cellValue=str(value), cellColor=color)
+
+    def scrape_table(self):
+        '''Scrape the table and update the jobs dictionary
+        '''
+        rows = mc.scriptTable(self.table, rows=True, query=True)
+        for row in range(1,rows):
+            key = mc.scriptTable(self.table, cellIndex=(row,1), cellValue=True, query=True)[0]
+            value = mc.scriptTable(self.table, cellIndex=(row,2), cellValue=True, query=True)[0]
+            if value != dict:
+                #required because of some funky unicode encoding that happens during exec
+                value = "'" + value.replace('\\', '\\\\') + "'"
+
+            keys =  key.split(':')
+            for k in keys:
+                self.safe_nested_dict_update(self.jobs, k, value)
+
+        mc.deleteUI(self.window)
+        vray_submit.submit_jobs(self.jobs)
 
 
-def validateQubeDictUI(jobs):
-    if( mc.window( 'submitDict', q = 1, ex = 1 ) ):mc.deleteUI( 'submitDict' )
-
-    # only show these keys
-    keys = ['name', 'cpus', 'imgHeight', 'imgWidth', 'padding', 'range', 'imgFile', 'renderpath', 'cluster', 'priority', 'reservations']
-    jobsLength = filter_keys(jobs, keys)
-
-    window = mc.window('submitDict', widthHeight=(400, 300))
-    form = mc.formLayout()
-    table = mc.scriptTable(rows=jobsLength, columns=2, label=[(1,"Key"), (2,"Value")], cellChangedCmd=edit_cell)
-    mc.scriptTable(table, cw = [1,250], edit=True)
-    mc.scriptTable(table, cw = [2,500], edit=True)
-    mc.scriptTable(table, edit=True, cbc=cell_color)
-
-
-    okButton = mc.button('okButton', label="Submit", command=partial(scrapeQubeDict, jobs, table))
-    cancelButton = mc.button(label="Cancel",command="mc.deleteUI( 'submitDict' )")
-
-    mc.formLayout(form, edit=True, attachForm=[(table, 'top', 0), (table, 'left', 0), (table, 'right', 0), (okButton, 'left', 0), (okButton, 'bottom', 0), (cancelButton, 'bottom', 0), (cancelButton, 'right', 0)], attachControl=(table, 'bottom', 0, okButton), attachNone=[(okButton, 'top'),(cancelButton, 'top')],  attachPosition=[(okButton, 'right', 0, 50), (cancelButton, 'left', 0, 50)] )
-
-
-    visualise_dict(jobs, table=table, keys=keys)
-    mc.setFocus(okButton)
-    mc.showWindow( window )
-
-
-def scrapeQubeDict(jobs, table, *args):
-    renderPath = jobs['vray_job']['renderpath']
-    rows = mc.scriptTable(table, rows=True, query=True)
-    for row in range(1,rows):
-        key = mc.scriptTable(table, cellIndex=(row,1), cellValue=True, query=True)[0]
-        value = mc.scriptTable(table, cellIndex=(row,2), cellValue=True, query=True)[0]
-        if value != '{}':
-            #required because of some funky unicode encoding that happens during exec
-            value = "'" + value.replace('\\', '\\\\') + "'"
-
-
-        keys =  key.split(':')
-        path = ''
-        for k in keys:
-            path += "['" + k + "']"
-        #print path, value
-        exec('jobs' + path +' = ' + value)
-        #print mc.scriptTable(table, cellIndex=(row,2), cellValue=True, query=True)
-    mc.deleteUI( 'submitDict' )
-
-    #============================================================================================
-    #Need to update the package cmdline to reflect changes to args
-    #============================================================================================
-
-    print ("Updating cmdline path")
-    newPath = jobs['vray_job']['renderpath']
-    cmdline = jobs['vray_job']['package']['cmdline']
-    imgfile = jobs['vray_job']['package']['-imgFile']
-    scenefile = jobs['vray_job']['package']['-sceneFile']
-    jobs['vray_job']['package']['cmdline'] = cmdline.replace(renderPath, newPath)
-    jobs['vray_job']['package']['-imgFile'] = imgfile.replace(renderPath, newPath)
-    jobs['vray_job']['package']['-sceneFile'] = scenefile.replace(renderPath, newPath)
-
-    return jobs
-
-
-# this is awful need to figure out a better idea
-index = [0]
-def visualise_dict(d,lvl=0,parent='', table='', keys=[]):
-    global hilight
-
-
-    # go through the dictionary alphabetically
-    for k in sorted(d):
-        #print parent
-        #print index
-
-
-        # print the table header if we're at the beginning
-        if lvl == 0 and k == sorted(d)[0]:
-            index[0] = 0
-            hilight = []
-
-            #print('{:<45} {:<15} {:<10}'.format('KEY','LEVEL','TYPE'))
-            #print('-'*79)
-
-
-        #print index[0]
-
-        indent = '  '*lvl # indent the table to visualise hierarchy
-        t = str(type(d[k]))
-        v = str((d[k]))
-        if type(d[k])==dict:
-            v='{}'
-
-        # print details of each entry
-        #print("{:<45} {:<15} {:<10}".format(indent+str(k),lvl,t))
-        #mc.scriptTable(table, edit=True,insertRow=1)
-        if k in keys:
-            index[0]+=1
-            mc.scriptTable(table, cellIndex=(index[0],1), edit=True, cellValue=str(parent+k))
-            mc.scriptTable(table, cellIndex=(index[0],2), edit=True, cellValue=str(v))
-
-
-            hilight.append((index[0],lvl))
-
-
-
-        # if the entry is a dictionary
-        if type(d[k])==dict:
-            # visualise THAT dictionary with +1 indent
-            visualise_dict(d[k],lvl+1,parent=(parent + k + ':'), table=table, keys=keys)
+if __name__ == '__main__':
+    submit_ui = SubmitUI()

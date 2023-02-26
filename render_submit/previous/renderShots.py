@@ -1,7 +1,7 @@
 import maya.cmds as mc
 import maya.mel as mm
 import winsound
-import vray_standaloneSubmit as vss
+import render_submit.vray_submit as vss
 reload(vss)
 
 import sys
@@ -21,9 +21,9 @@ def get_shot_data():
 
     projectID = shotgunConnect.getProjectFromCode(mc.optionVar( q="op_currProjectName" ))['id']
     sequences = shotgunConnect.getSequences(projectID)
-    
+
     shot_data = []
-    
+
     for seq in sequences:
          shots = shotgunConnect.getShotsFromSequence(seq['id'], projectID)
          for shot in shots:
@@ -57,7 +57,7 @@ def renderShots(export=False):
     confirmString = 'Shots flagged as "in progress" for render \r\n'
     for d in current_shot_data:
         confirmString += ('seq{} shot{} \r\n'.format(d['sequence'], d['shot']))
-    
+
     result = mc.confirmDialog(
                 title='Multiple Shot Submit',
                 message=confirmString,
@@ -68,7 +68,7 @@ def renderShots(export=False):
 
     if result == 'Cancel':
         return
-    
+
 
     def progress(status):
         mc.progressWindow(e=True, step=1, status = status)
@@ -78,13 +78,13 @@ def renderShots(export=False):
             mc.progressWindow( endProgress=True)
             return True
         return False
-    
+
     # init progress window
     if current_shot_data:
         window = mc.progressWindow(	title='Rendering shots...', maxValue=len(current_shot_data)*3, status='Initializing...', isInterruptable=True )
     else:
         mc.error('No in progress shots found')
-    
+
     for active_shot in current_shot_data:
         shot = active_shot.get('shot')
         seq = active_shot.get('sequence')

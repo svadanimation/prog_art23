@@ -11,8 +11,7 @@ import qb
 # internal
 from render_submit import constants
 from render_submit import render_utils
-from render_submit import submit_UI
-from render_submit import vray_MASH
+from render_submit import vray_mash
 
 
 def build_submit(make_movie=False, project=False, high_memory=0):
@@ -217,11 +216,27 @@ def build_submit(make_movie=False, project=False, high_memory=0):
     return jobs
 
 
-def vray_standalone(make_movie=False, project=False, show_ui=True):
+def vray_standalone(jobs = None,
+                    make_movie=False,
+                    project=False,
+                    show_ui=True):
     '''
     Entry point to build the dictionary for submission
+    optinally pass in a job from a UI
+    build it if it doesn't exist
 
     '''
+    vray_config()
+
+    #fill the dictionary
+    if not jobs:
+        jobs = build_submit(make_movie=make_movie, project=project)
+
+    vray_standalone_post(jobs, show_ui=show_ui)
+
+def vray_config():
+    '''Check vray is loaded and set it as the renderer'''
+
     if not render_utils.plugin_check(constants.VRAY_PLUGIN_LOAD):
         mc.error('Vray is not loaded')
 
@@ -234,15 +249,6 @@ def vray_standalone(make_movie=False, project=False, show_ui=True):
     if mel.eval("vrend -isRendering") == "1" or mel.eval("vrend -q") == "1":
         mc.error('Already rendering or exporting')
 
-    #fill the dictionary
-    jobs = build_submit(make_movie=make_movie, project=project)
-
-    if show_ui:
-        jobs = submit_UI.validateQubeDictUI(jobs)
-        vray_standalone_post(jobs)
-
-    else:
-        vray_standalone_post(jobs, show_ui=False)
 
 def vray_standalone_post(jobs, show_ui=True):
     '''Script to execute after scene translation
