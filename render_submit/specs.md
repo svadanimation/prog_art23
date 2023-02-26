@@ -49,31 +49,9 @@ Assemble the files into a movie at the end.
 
 
 ```
-#It's important that the machines have the correct codecs installed or the movie conversion will fail
-        pdplayercmd = ('%s %s \
---force_sequence \
---alpha=ignore \
---color_space=%s \
---exposure=0 \
---soft_clip=0 \
---saturation=0 \
---transient \
---scale=100 --mask_size=1280,720 --mask_type=crop --fps=24 \
---save_mask_as_image=%s \
---save_mask_as_sequence=%s,mp4v,100 \
---exit'
-            % (PDPLAYER,
-            #input sequence
-            #str(framePath.replace('#','*')),
-            str(framePath.replace('#','*')),
-            #str(os.path.normpath(LUT)),
-            str(colorSpace),
-            #thumbnail path
-            str(basePath +  'thumb.jpg'),
-            #movie path
-            str(basePath + 'movie.mov')
-            ))        
-            ```
+# Moved movie submission to the farm!
+
+```
 
 
 
