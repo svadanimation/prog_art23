@@ -68,7 +68,7 @@ class SubmitUI(object):
         return _dict
 
     @staticmethod
-    def safe_nested_dict_update(nested_dict, key_list, value, default=None):
+    def deep_update(nested_dict, key_list, value, default=None):
         """
         Safely updates a value in a nested dictionary given a list of keys.
         If intermediate dictionaries or the key do not exist,
@@ -171,7 +171,7 @@ class SubmitUI(object):
 
             keys =  key.split(':')
             for k in keys:
-                self.safe_nested_dict_update(self.jobs, k, value)
+                self.deep_update(self.jobs, k, value)
 
         mc.deleteUI(self.window)
         vray_submit.submit_jobs(self.jobs)
