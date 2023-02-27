@@ -1,3 +1,9 @@
+'''
+File Io Project
+
+~Rileigh Juba
+'''
+
 import os
 import json
 from pprint import pprint
@@ -9,10 +15,6 @@ JSON_FILE = 'json_file.json'
 text_path = os.path.realpath(f'{FILEPATH}/{TEXT_FILE}')
 json_path = os.path.realpath(f'{FILEPATH}/{JSON_FILE}')
 
-'''
------
-'''
-
 TEXT = 'cn87984nb3qjmlku0'
 DATA = {'robin': 'dgrayson', 'sfire': 'kori', 
         'cyborg': 'victor', 'bboy': 'garfield', 
@@ -23,14 +25,15 @@ def text_plcmnt(path, text):
         txt.write(text)
 
 def text_rdr(path):
-    txt_lets = []
+    txt_lets = ''
     txt_digits = []
     with open(path, 'r') as txt:
-        for f in TEXT:
+        read_text = txt.read()
+        for f in read_text:
             if f.isdigit():
                 txt_digits.append(int(f))
             else:
-                txt_lets.append(f)
+                txt_lets += f
     return(txt_digits, txt_lets)    
 
 def dict_plcmnt(path, data):
