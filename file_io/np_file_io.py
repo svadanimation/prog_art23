@@ -24,11 +24,11 @@ data = {
         }
 
 #Text Functions
-def rw_text(path, content = ''):
+def rw_text(path, text = ''):
     text_info = None
-    if content:
+    if text:
         with open(path, 'w') as t:
-            t.write(content)
+            t.write(text)
     else:
         with open(path, 'r') as t:
             for line in t:  
@@ -39,11 +39,11 @@ def rw_text(path, content = ''):
     return f'The file named {text_file} says: {text_info}'
 
 #Json Functions
-def rw_json(path, content = ''):
+def rw_json(path, data = ''):
     json_info = None
-    if content:
+    if data:
          with open(path, 'w') as j:
-            json.dump(content, j)
+            json.dump(data, j)
     else:
         with open(path, 'r') as j:
             json_info = json.load(j)
@@ -51,7 +51,7 @@ def rw_json(path, content = ''):
 
 #Script Execution
 if __name__ == '__main__':
-    rw_text(text_path, content = text)
-    print(rw_text(text_path, content = ''))
-    rw_json(json_path, content = data)
-    pprint.pprint(rw_json(json_path, content = ''))
+    rw_text(text_path, text = text)
+    print(rw_text(text_path, text = ''))
+    rw_json(json_path, data = data)
+    pprint.pprint(rw_json(json_path, data = ''))
