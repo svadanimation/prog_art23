@@ -1,12 +1,15 @@
+
+import json
+
 ps='bruh\n843\n2.45'
 print(ps)
 
-def str_to_text_file(filename):
+def str_to_text_file(filename, ps):
     f = open(filename, "w")
     f.write(ps)
     f.close()
 
-str_to_text_file("god.txt")
+str_to_text_file("god.txt",)
 
 def is_float(num):
     try:

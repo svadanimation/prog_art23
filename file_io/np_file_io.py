@@ -5,17 +5,17 @@ import re
 import pprint
 
 #Constants
-directory = 'Z:'
-text_file = 'text_file.txt'
-json_file = 'json_file.json'
+DIRECTORY = 'Z:'
+TEXT_FILE = 'text_file.txt'
+JSON_FILE = 'json_file.json'
 
 #Paths
-text_path = os.path.join(directory, text_file)
-json_path = os.path.join(directory, json_file)
+text_path = os.path.join(DIRECTORY, TEXT_FILE)
+json_path = os.path.join(DIRECTORY, JSON_FILE)
 
 #Variables
-text = 'abc123'
-data = {
+TEXT= 'abc123'
+DATA = {
         'a': 1, 
         'b': 2, 
         'c': 3, 
@@ -24,34 +24,33 @@ data = {
         }
 
 #Text Functions
-def rw_text(path, text = ''):
+def rw_text(path, content = ''):
     text_info = None
-    if text:
+    if content:
         with open(path, 'w') as t:
-            t.write(text)
+            t.write(content)
     else:
         with open(path, 'r') as t:
             for line in t:  
                 match = re.match(r'([a-z]+)([0-9]+)', line)
             if match:
                 text_info = match.groups()
-                
-    return f'The file named {text_file} says: {text_info}'
+    return f'The file named {TEXT_FILE} says: {text_info}'
 
 #Json Functions
-def rw_json(path, data = ''):
+def rw_json(path, content = ''):
     json_info = None
-    if data:
+    if content:
          with open(path, 'w') as j:
-            json.dump(data, j)
+            json.dump(content, j)
     else:
         with open(path, 'r') as j:
             json_info = json.load(j)
-            return json_info
+    return json_info
 
 #Script Execution
 if __name__ == '__main__':
-    rw_text(text_path, text = text)
-    print(rw_text(text_path, text = ''))
-    rw_json(json_path, data = data)
-    pprint.pprint(rw_json(json_path, data = ''))
+    rw_text(text_path, content = TEXT)
+    print(rw_text(text_path, content = ''))
+    rw_json(json_path, content = DATA)
+    pprint.pprint(rw_json(json_path, content = ''))
