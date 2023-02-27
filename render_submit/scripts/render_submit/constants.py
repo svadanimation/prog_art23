@@ -1,13 +1,16 @@
+'''
+Constants for the render submitter
+'''
 import os
 
 RELEASE = '2023'
 VRAY_VERSION = 'vray/6'
 
 # Note! the osx versions of this are in the vray/bin/vray.sh file
-CONVERT_PATH = '__VRAYBIN{}__'.format(RELEASE)
+CONVERT_PATH = f'__VRAYBIN{RELEASE}__'
 
 BASE = os.path.normpath('//svad-kahlo/common/Animation/Pipeline/')
-SVAD = 'SVAD_{}'.format(RELEASE)
+SVAD = f'SVAD_{RELEASE}'
 BASE_PIPE = os.path.join(BASE, SVAD)
 VRAY_PATH = os.path.join(BASE_PIPE, VRAY_VERSION, '/maya_vray/bin')
 VRAY_PLUGINS = os.path.join(BASE_PIPE, VRAY_VERSION, 'maya_vray/vrayplugins')
@@ -23,7 +26,8 @@ PRIORITY = '4000'
 MIN_FILE_SIZE = '5000' # bytes
 
 # Needs to be a 12 bit srgb lut. It is tricky getting the correct export from nuke.
-# 3dl tables are assumed to have 12 bits of output (range 0...4095),  are assumed to contain sRGB values by default 
+# 3dl tables are assumed to have 12 bits of output (range 0...4095)
+# are assumed to contain sRGB values by default
 LUT = os.path.join(BASE_PIPE, VRAY_VERSION, 'look.3dl')
 
 # Used to pass a .json dictionary submission
