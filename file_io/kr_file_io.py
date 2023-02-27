@@ -47,8 +47,7 @@ def read_dict(path):
 
 if __name__ == '__main__':
     write_txt(text_file_path, TEXT)
-    nums, chars = read_txt(text_file_path)
-    print(f'My nums are {nums}, and my chars are {str(nums)}')
-    
-    write_dict(f'{json_file_path}')
-    pprint(read_dict(f'{json_file_path}'))
+    chars, nums = read_txt(text_file_path)
+    print(f'My nums are {nums}, and my chars are {str(chars)}')
+    write_dict(json_file_path, DATA)
+    pprint(read_dict(json_file_path))
