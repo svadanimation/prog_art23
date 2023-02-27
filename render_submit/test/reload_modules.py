@@ -25,7 +25,7 @@ from render_submit import render_utils
 from render_submit import vray_path_translate
 from render_submit import vray_mash
 from render_submit import vray_submit
-from render_submit.ui import multi_submit_ui
+from render_submit.ui import single_submit_ui
 from render_submit.ui import multi_submit_ui
 
 # Iterate over the modules in sys.modules with the same package name
@@ -40,4 +40,5 @@ print('All modules in package', current_package, 'have been reloaded.')
 
 
 
-vray_submit.vray_submit_jobs()
+# vray_submit.vray_submit_jobs(make_movie=True)
+submit_ui = single_submit_ui.SubmitUI()

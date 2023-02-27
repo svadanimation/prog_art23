@@ -26,6 +26,24 @@ def get_renderable_camera():
         mc.warning(f'No rendearble cameras found. Using {render_cam[0]}' )
     return render_cam
 
+def display_message(message, duration=10, color=(1,1,1)):
+    """
+    Displays a message in the Maya viewport using inViewMessage.
+
+    Args:
+        message (str): The message to display.
+        duration (int): The duration in seconds that the message will be displayed for. Defaults to 5.
+        color (tuple): The RGB color of the message. Values should be between 0 and 1. Defaults to (1,1,1).
+    """
+    mc.inViewMessage(message=message,
+                     pos='midCenter',
+                     fade=True,
+                     alpha=0.7,
+                     bkc=color,
+                     fgc=(0,0,0),
+                     fadeStayTime=duration,
+                     fadeOutTime=0.5,
+                     ck=True)
 
 def build_directory(filepath=''):
     '''Creates a render directory relative to the out
@@ -107,7 +125,7 @@ def unc_mapper(path, remove='', drivetable = None):
         drivetable = unc_drive_table()
     #get the drive letter
     drive, tail = os.path.splitdrive(path)
-    print (drive, tail)
+    # print (drive, tail)
     if ':' not in drive: return path.replace(remove,'')
 
     # we may not have a mapping for the drive, like a removable disk, so skip if that's the case.

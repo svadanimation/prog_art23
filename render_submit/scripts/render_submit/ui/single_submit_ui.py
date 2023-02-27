@@ -2,7 +2,7 @@
     Display a validation UI for the Qube job dictionary
 
 '''
-
+from pprint import pprint
 import maya.cmds as mc
 from render_submit import vray_submit
 
@@ -14,16 +14,16 @@ class SubmitUI(object):
 
     '''
     WINDOW = 'submit_ui'
-    keys = [['vray_job','name'],
-            ['vray_job', 'cpus'],
+    keys = [['vray_job', 'name'],
+            ['vray_job', 'package', 'range'],
             ['vray_job', 'package', '-imgHeight'],
             ['vray_job', 'package', '-imgWidth'],
-            ['vray_job', 'package', 'padding'],
-            ['vray_job', 'package', 'range'],
-            ['vray_job', 'package', 'imgFile'],
-            ['vray_job', 'package', 'renderpath'],
-            ['vray_job', 'cluster'],
+            ['vray_job', 'package', '-imgFile'],
+            ['vray_job', 'renderpath'],
+            ['vray_job', 'cpus'],
             ['vray_job', 'priority'],
+            ['vray_job', 'package', 'padding'],
+            ['vray_job', 'cluster'],
             ['vray_job', 'reservations'],
             ['vray_job', 'validate_fileMinSize']]
 
@@ -35,17 +35,24 @@ class SubmitUI(object):
         self.form = None
         self.table = None
         self.ok_button = None
+        self.movie_button = None
         self.cancel_button = None
         self.hilight = None
         self.job_count = None
 
         vray_submit.vray_config()
+        self.validate_submit_dict()
+        self.show()
 
     def show(self):
         '''Show the UI'''
-        if mc.window( self.WINDOW, q = 1, ex = 1 ):
-            mc.deleteUI( self.WINDOW)
+        mc.window(self.window, edit=True, sizeable=True, resizeToFitChildren=True)
         mc.showWindow( self.window )
+
+    def remove(self, *args):
+        '''Remove the ui'''
+        if mc.window( self.WINDOW, q = 1, ex = 1 ):
+            mc.deleteUI(self.WINDOW)
 
     @staticmethod
     def deep_get(_dict, keys, default=None):
@@ -91,9 +98,14 @@ class SubmitUI(object):
             if not isinstance(nested_dict, dict):
                 return
 
-        nested_dict.setdefault(key_list[-1], value if value is not None else default)
+        if key_list[-1] in nested_dict:
+            nested_dict[key_list[-1]] = value
+        else:
+            nested_dict.setdefault(key_list[-1], value if value is not None else default)
 
-    def edit_cell(self):
+
+    @staticmethod
+    def edit_cell(row, column, value):
         '''Callback for when a cell is edited in the table'''
         return 1
 
@@ -103,11 +115,11 @@ class SubmitUI(object):
         :param jobs: dictonary of qube jobs
         :type jobs: dict
         '''
+        # delete the old window if it exists
+        self.remove()
 
-        # only show these keys
-
-        self.window = mc.window('submit_ui', widthHeight=(400, 300))
-        self.form = mc.formLayout()
+        self.window = mc.window(self.WINDOW, widthHeight=(400, 300))
+        self.form = mc.formLayout('submit_form')
         self.table = mc.scriptTable(rows=len(self.keys),
                             columns=2,
                             label=[(1,"Key"), (2,"Value")],
@@ -115,30 +127,37 @@ class SubmitUI(object):
         mc.scriptTable(self.table, cw = [1,250], edit=True)
         mc.scriptTable(self.table, cw = [2,500], edit=True)
 
-        ok_button = mc.button('okButton',
+        self.ok_button = mc.button('okButton',
                             label="Submit",
-                            command=self.scrape_table)
+                            command=self.submit)
 
-        self.cancel_button = mc.button(label="Cancel",command=f'mc.deleteUI({self.window})')
+        self.movie_button = mc.button('movie_button',
+                            label="Submit && Make Movie",
+                            command=self.submit_movie)
+
+        self.cancel_button = mc.button(label="Cancel",command=self.remove)
 
         mc.formLayout(self.form,
-                    edit=True,
-                    attachForm=[(self.table, 'top', 0),
-                                (self.table, 'left', 0),
-                                (self.table, 'right', 0),
-                                (self.ok_button, 'left', 0),
-                                (self.ok_button, 'bottom', 0),
-                                (self.cancel_button, 'bottom', 0),
-                                (self.cancel_button, 'right', 0)],
-                    attachControl=(self.table, 'bottom', 0, ok_button),
-                    attachNone=[(self.ok_button, 'top'),(self.cancel_button, 'top')],
-                    attachPosition=[(self.ok_button, 'right', 0, 50),
-                                    (self.cancel_button, 'left', 0, 50)] )
+            edit=True,
+            attachForm=[(self.table, 'top', 0),
+                        (self.table, 'left', 0),
+                        (self.table, 'right', 0),
+                        (self.ok_button, 'left', 0),
+                        (self.ok_button, 'bottom', 0),
+                        (self.movie_button, 'bottom', 0),
+                        (self.cancel_button, 'bottom', 0),
+                        (self.cancel_button, 'right', 0)],
+            attachControl=[(self.table, 'bottom', 0, self.ok_button),
+                           (self.movie_button, 'left', 0, self.ok_button),
+                        (self.movie_button, 'right', 0, self.cancel_button)],
+            attachNone=[(self.ok_button, 'top'),(self.cancel_button, 'top'),(self.movie_button, 'top')],
+            attachPosition=[(self.ok_button, 'right', 0, 33),
+                            (self.cancel_button, 'left', 0, 66)]
+            )
 
         self.draw_table()
-        mc.setFocus(ok_button)
+        mc.setFocus(self.ok_button)
 
-        self.show()
 
     def draw_table(self):
         '''Fill the table with the selected items from the jobs dictionary
@@ -151,12 +170,28 @@ class SubmitUI(object):
             else:
                 value = self.jobs[key]
 
-            colors = [(0.5,0.5,0.5), (0.3,0.3,0.3)]
-            color = colors[i % 2]
-            mc.scriptTable(self.table, cellIndex=(i,1),
-                           edit=True, cellValue=str(':'.join(key)), cellColor=color)
-            mc.scriptTable(self.table, cellIndex=(i,2),
-                           edit=True, cellValue=str(value), cellColor=color)
+            mc.scriptTable(self.table, cellIndex=(i+1,1),
+                           edit=True, cellValue=str(':'.join(key)), cbc=self.cell_color)
+            mc.scriptTable(self.table, cellIndex=(i+1,2),
+                           edit=True, cellValue=str(value), cbc=self.cell_color)
+
+    @staticmethod
+    def cell_color(row, _, color_range='255'):
+        colors = [(0.25,0.25,0.25), (0.3,0.3,0.3)]
+        color = colors[row % 2]
+
+        if row==1:
+            color = (0.3,0.5,0.7)
+
+        if row > 6:
+            color = tuple((c*1.5) for c in color)
+
+        if color_range == '1':
+            return color
+        elif color_range == '255':
+            return tuple(int(c*255) for c in color)
+        else:
+            mc.error("Invalid color range specified. Must be '1' or '255'.")
 
     def scrape_table(self):
         '''Scrape the table and update the jobs dictionary
@@ -167,13 +202,27 @@ class SubmitUI(object):
             value = mc.scriptTable(self.table, cellIndex=(row,2), cellValue=True, query=True)[0]
             if value != dict:
                 #required because of some funky unicode encoding that happens during exec
-                value = "'" + value.replace('\\', '\\\\') + "'"
+                # value = "'" + value.replace('\\', '\\\\') + "'"
+                value = value.replace('\\', '\\\\')
 
-            keys =  key.split(':')
-            for k in keys:
-                self.deep_update(self.jobs, k, value)
+            # break up by token
+            keys = key.split(':')
+            self.deep_update(self.jobs, keys, value)
 
-        mc.deleteUI(self.window)
+        # pprint(self.jobs)
+
+    def submit_movie(self,*args):
+
+        # There is probably a better pattern, but we make the new submit dict with a movie
+        # then overwite the new one with ui values
+        self.jobs = vray_submit.get_jobs(make_movie=True)
+        self.scrape_table()
+        self.remove()
+        vray_submit.vray_submit_jobs(self.jobs)
+
+    def submit(self,*args):
+        self.scrape_table()
+        self.remove()
         vray_submit.vray_submit_jobs(self.jobs)
 
 

@@ -1,8 +1,13 @@
 '''
 Qube! vray standalone submitter
+
+TODO: Remake agenda after range is updated
+TODO: Set in/out based on updated range in UI
+
 '''
 # builtins
 import os
+from pprint import pprint
 
 import maya.mel as mel
 import maya.cmds as mc
@@ -14,7 +19,7 @@ from render_submit import render_utils
 from render_submit import vray_mash
 
 
-def build_submit(make_movie=False, project=False, high_memory=0):
+def get_jobs(make_movie=False, project=False, high_memory=0):
     '''
     Builds a dictionary of render settings for submission
 
@@ -54,7 +59,7 @@ def build_submit(make_movie=False, project=False, high_memory=0):
     drive_table = render_utils.unc_drive_table(remove = constants.NETWORK_SUFFIX)
     render_path = render_utils.unc_mapper(render_path, drivetable=drive_table)
     frame_path = render_utils.unc_mapper(frame_path, drivetable=drive_table)
-    vrscene = render_utils.unc_mapper(vrscene, driveTable=drive_table)
+    vrscene = render_utils.unc_mapper(vrscene, drivetable=drive_table)
 
     # calculate colorspace based on extension
     color_space = 'linear'
@@ -90,7 +95,7 @@ def build_submit(make_movie=False, project=False, high_memory=0):
 
     # this esoteric flag is to make the job do worker path translation.
     # Every path to be converted according to the qbwork.conf
-    # needs to be wrapped in QB_constants.CONVERT_PATH()
+    # needs to be wrapped in QB_CONVERT_PATH()
     vray_job['flags'] = '131072'
 
     # on osx this is controlled via the vray.sh file which spins these up
@@ -114,14 +119,14 @@ def build_submit(make_movie=False, project=False, high_memory=0):
     package['regex_outputPaths'] = 'Successfully written image file "(.*?)"'
 
     cmd = (
-        f'QB_constants.CONVERT_PATH({constants.CONVERT_PATH})'
+        f'QB_CONVERT_PATH({constants.CONVERT_PATH})'
         ' -frames=QB_FRAME_START-QB_FRAME_END,QB_FRAME_STEP'
         ' -autoClose=1'
         ' -verboseLevel=3'
-        f' -sceneFile="QB_constants.CONVERT_PATH({str(vrscene)})"'
+        f' -sceneFile="QB_CONVERT_PATH({str(vrscene)})"'
         f' -imgWidth={width}'
         f' -imgHeight={height}'
-        f' -imgFile="QB_constants.CONVERT_PATH({str(frame_path)})"'
+        f' -imgFile="QB_CONVERT_PATH({str(frame_path)})"'
         ' -showProgress=0'
         ' -display=0'
     )
@@ -189,7 +194,7 @@ def build_submit(make_movie=False, project=False, high_memory=0):
         # or the movie conversion will fail
         pdplayercmd = (
             f'{constants.PDPLAYER}'
-            f' {str(frame_path.replace("#","*"))}'
+            f' "{str(frame_path.replace("#","*"))}"'
             ' --force_sequence'
             ' --alpha=ignore'
             f' --color_space={color_space}'
@@ -198,11 +203,11 @@ def build_submit(make_movie=False, project=False, high_memory=0):
             ' --saturation=0'
             ' --transient'
             ' --scale=100'
-            ' --mask_size={width},{height}'
+            f' --mask_size={width},{height}'
             ' --mask_type=crop'
             ' --fps=24'
-            f' --save_mask_as_image={str(base_path +  "thumb.jpg")}'
-            f' --save_mask_as_sequence={str(base_path + "movie.mov")},mp4v,100'
+            f' --save_mask_as_image="{str(base_path +  "thumb.jpg")}"'
+            f' --save_mask_as_sequence="{str(base_path + "movie.mov")}",mp4v,100'
             ' --exit'
         )
 
@@ -232,7 +237,7 @@ def vray_submit_jobs(jobs = None,
 
     #fill the dictionary
     if not jobs:
-        jobs = build_submit(make_movie=make_movie, project=project)
+        jobs = get_jobs(make_movie=make_movie, project=project)
 
     vray_standalone_post(jobs, show_ui=show_ui)
 
@@ -363,7 +368,8 @@ def vray_standalone_post(jobs, show_ui=True):
 
 
     # submit the jobs
-    print ('Jobs: ', jobs)
+    print ('Jobs: ')
+    pprint(jobs)
 
     if  'movie_job' in jobs:
         print ('Movie job >')
@@ -380,17 +386,18 @@ def vray_standalone_post(jobs, show_ui=True):
 
 
     # Provide submission feedback
-    result_string = ''
+    result_string = '<hl>Submitted:</hl>\n'
     for j in submitted:
-        result_string += f'Submitted: {j["id"]} = {j["name"]} \n'
+        result_string += f'{j["id"]} = {j["name"]} \n'
 
-    print(result_string)
+    print(result_string.replace('<hl>', '').replace('</hl>', ''))
 
     if show_ui:
-        mc.confirmDialog(title='Qube submit report',
-                         message=result_string,
-                         button='Ok',
-                         defaultButton='Ok' )
+        render_utils.display_message(result_string)
+        # mc.confirmDialog(title='Qube submit report',
+        #                  message=result_string,
+        #                  button='Ok',
+        #                  defaultButton='Ok' )
 
 
 if __name__ == '__main__':
