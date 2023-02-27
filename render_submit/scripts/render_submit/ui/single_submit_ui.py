@@ -174,7 +174,7 @@ class SubmitUI(object):
                 self.deep_update(self.jobs, k, value)
 
         mc.deleteUI(self.window)
-        vray_submit.submit_jobs(self.jobs)
+        vray_submit.vray_submit_jobs(self.jobs)
 
 
 if __name__ == '__main__':

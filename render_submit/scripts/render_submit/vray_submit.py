@@ -49,10 +49,12 @@ def build_submit(make_movie=False, project=False, high_memory=0):
 
     # switch paths to UNC
     # drive table returns a simple dict of 'Z:':'//server/share/path'
-    drive_table = render_utils.uncDriveTable(remove = constants.NETWORK_SUFFIX)
-    render_path = render_utils.uncMapper(render_path, drivetable=drive_table)
-    frame_path = render_utils.uncMapper(frame_path, drivetable=drive_table)
-    vrscene = render_utils.uncMapper(vrscene, driveTable=drive_table)
+
+
+    drive_table = render_utils.unc_drive_table(remove = constants.NETWORK_SUFFIX)
+    render_path = render_utils.unc_mapper(render_path, drivetable=drive_table)
+    frame_path = render_utils.unc_mapper(frame_path, drivetable=drive_table)
+    vrscene = render_utils.unc_mapper(vrscene, driveTable=drive_table)
 
     # calculate colorspace based on extension
     color_space = 'linear'
@@ -216,7 +218,7 @@ def build_submit(make_movie=False, project=False, high_memory=0):
     return jobs
 
 
-def vray_standalone(jobs = None,
+def vray_submit_jobs(jobs = None,
                     make_movie=False,
                     project=False,
                     show_ui=True):
@@ -392,4 +394,4 @@ def vray_standalone_post(jobs, show_ui=True):
 
 
 if __name__ == '__main__':
-    vray_standalone(project=False)
+    vray_submit_jobs(project=False)
