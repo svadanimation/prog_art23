@@ -13,12 +13,12 @@ json_path = os.path.realpath(f'{FILEPATH}/{JSON_FILE}')
 -----
 '''
 
-text = 'cn87984nb3qjmlku0'
-data = {'robin': 'dgrayson', 'sfire': 'kori', 
+TEXT = 'cn87984nb3qjmlku0'
+DATA = {'robin': 'dgrayson', 'sfire': 'kori', 
         'cyborg': 'victor', 'bboy': 'garfield', 
         'raven': 'rachel', 'digits':{'a':'25', 'b':'32', 'c':'17'}}
 
-def text_plcmnt(path):
+def text_plcmnt(path, text):
     with open(path, 'w') as txt:
         txt.write(text)
 
@@ -26,14 +26,14 @@ def text_rdr(path):
     txt_lets = []
     txt_digits = []
     with open(path, 'r') as txt:
-        for f in text:
+        for f in TEXT:
             if f.isdigit():
                 txt_digits.append(int(f))
             else:
                 txt_lets.append(f)
     return(txt_digits, txt_lets)    
 
-def dict_plcmnt(path):
+def dict_plcmnt(path, data):
     with open(path, 'w') as dcj:
         json.dump(data, dcj)
 
@@ -44,5 +44,7 @@ def dict_rdr(path):
     return(dict_info)
 
 if __name__ == '__main__':
+    text_plcmnt(text_path, TEXT)
+    dict_plcmnt(json_path, DATA)
     pprint(text_rdr(text_path))
     pprint(dict_rdr(json_path))
