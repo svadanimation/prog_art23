@@ -3,14 +3,14 @@ import json
 from pprint import pprint
 
 FILEPATH = 'Z:/'
-TEXT_FILE = 'text_file.txt'
+TEXT_FILE = 'text_file_SPLODEY.txt'
 JSON_FILE = 'json_file.json'
 
-text_file_path = os.path.join('Z:/', 'text_file.txt')
-json_file_path = os.path.join('Z:/', 'json_file.json')
+text_file_path = os.path.join(FILEPATH, TEXT_FILE)
+json_file_path = os.path.join(FILEPATH, JSON_FILE)
 
-text = 'chat3gpt4'
-data = {
+TEXT = 'chat3gpt4'
+DATA = {
     'walk':'paris',
     'run':'miami',
     'swim':'sydney', 
@@ -21,20 +21,22 @@ data = {
     }
 }
 
-def write_txt(path):
+def write_txt(path, text):
     with open(path, 'w') as f:
         f.write(text)
 def read_txt(path):
     txt = ''
     digits = []
     with open (path, 'r') as f:
-        for byte in text:
-            if byte.isdigit():
-                digits.append(int(byte))
+        text = f.read()
+        for char in text:
+            if char.isdigit():
+                digits.append(int(char))
             else:
-                txt = txt + (byte)
+                txt += char
     return(txt, digits)
-def write_dict(path):
+
+def write_dict(path, data):
     with open(path, 'w') as g:
         json.dump(data, g)
 def read_dict(path):
@@ -44,7 +46,9 @@ def read_dict(path):
     return(dict_data)
 
 if __name__ == '__main__':
-    write_txt(f'{text_file_path}')
-    pprint(read_txt(f'{text_file_path}'))
+    write_txt(text_file_path, TEXT)
+    nums, chars = read_txt(text_file_path)
+    print(f'My nums are {nums}, and my chars are {str(nums)}')
+    
     write_dict(f'{json_file_path}')
     pprint(read_dict(f'{json_file_path}'))

@@ -7,16 +7,16 @@ Eleanor Kim
 import os
 import json
 from pprint import pprint
- 
+
 #constants
-filepath = 'Z:'
-text_file = 'text_file.txt'
-json_file = 'json_file.json'
+FILEPATH = 'Z:'
+TEXT_FILE = 'text_file.txt'
+JSON_FILE = 'json_file.json'
 
-file_path_t = os.path.realpath(f'{filepath}/{text_file}')
-file_path_j = os.path.realpath(f'{filepath}/{json_file}')
+file_path_t = os.path.realpath(f'{FILEPATH}/{TEXT_FILE}')
+file_path_j = os.path.realpath(f'{FILEPATH}/{JSON_FILE}')
 
-text = '34aMty570534gths'
+TEXT = '34aMty570534gths'
 data = {
  'dog': {
     'name': "Fido",
@@ -33,24 +33,24 @@ data = {
 }
 
 #opens file to write text
-def open_text():
-    with open (file_path_t,"w") as txt:
+def open_text(file_path, text):
+    with open (file_path,"w") as txt:
             txt.write(text)
 #reads string from file name
-def read_string():
+def read_string(file_path):
     letters = ""
     numbers = ""
-    with open (file_path_t, "r") as f:
-        read_text=f.readlines()
-        for i in text:
-                if(i.isdigit()):
-                    letters+=i
-                else:
-                    numbers+=i
-        pprint(letters, numbers)
+    with open (file_path, "r") as f:
+        read_text=f.read()
+        for i in read_text:
+            if(i.isdigit()):
+                numbers+=i
+            else:
+                letters+=i
+    return(letters, numbers)
 #writes dictionary to disk as json
-def open_json():
-    with open(file_path_j, 'w') as outfile:
+def open_json(file_path, data):
+    with open(file_path, 'w') as outfile:
         json.dump(data, outfile)
 #reads dict from json file
 def read_json():
@@ -59,12 +59,12 @@ def read_json():
         pprint(read_json)
 
 def ek_file_io():
-     open_text()
+     pprint(TEXT_FILE)
+     open_text(file_path_t, TEXT)
+     pprint(read_string(file_path_t))
+     pprint(JSON_FILE)
      open_json()
-     read_string()
      read_json()
 
 if __name__ == "__main__":
      ek_file_io()
-     pprint(text_file)
-     pprint(json_file)
