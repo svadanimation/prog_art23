@@ -13,11 +13,9 @@ FILEPATH = 'Z:'
 TEXT_FILE = 'text_file.txt'
 JSON_FILE = 'json_file.json'
 
-file_path_t = os.path.realpath(f'{FILEPATH}/{TEXT_FILE}')
-file_path_j = os.path.realpath(f'{FILEPATH}/{JSON_FILE}')
 
 TEXT = '34aMty570534gths'
-data = {
+DATA = {
  'dog': {
     'name': "Fido",
     'age': 2
@@ -31,6 +29,9 @@ data = {
     'age': "3 months"
     }
 }
+
+file_path_t = os.path.realpath(f'{FILEPATH}/{TEXT_FILE}')
+file_path_j = os.path.realpath(f'{FILEPATH}/{JSON_FILE}')
 
 #opens file to write text
 def open_text(file_path, text):
