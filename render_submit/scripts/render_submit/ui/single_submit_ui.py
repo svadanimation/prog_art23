@@ -200,16 +200,26 @@ class SubmitUI(object):
         for row in range(1,rows):
             key = mc.scriptTable(self.table, cellIndex=(row,1), cellValue=True, query=True)[0]
             value = mc.scriptTable(self.table, cellIndex=(row,2), cellValue=True, query=True)[0]
-            if value != dict:
-                #required because of some funky unicode encoding that happens during exec
-                # value = "'" + value.replace('\\', '\\\\') + "'"
-                value = value.replace('\\', '\\\\')
+            # if value != dict:
+            #     #required because of some funky unicode encoding that happens during exec
+            #     # value = "'" + value.replace('\\', '\\\\') + "'"
+            #     value = value.replace('\\', '\\\\')
 
             # break up by token
             keys = key.split(':')
             self.deep_update(self.jobs, keys, value)
 
         # pprint(self.jobs)
+
+    def update_agenda(self):
+        range_keys = ['vray_job', 'package', 'range']
+        range = self.deep_get(self.jobs, range_keys)
+        start_frame, end_frame = range.split('-')
+        mc.setAttr("defaultRenderGlobals.startFrame", start_frame)
+        mc.getAttr("defaultRenderGlobals.endFrame", end_frame)
+        
+        
+
 
     def submit_movie(self,*args):
 

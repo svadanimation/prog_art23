@@ -268,6 +268,16 @@ def vray_standalone_post(jobs, show_ui=True):
     vrscene = jobs['vray_job']['package']['-sceneFile']
     render_path = jobs['vray_job']['renderpath']
     project = False
+    
+    range = ['vray_job']['package']['range']
+    start_frame, end_frame = range.split('-')
+    mc.setAttr("defaultRenderGlobals.startFrame", start_frame)
+    mc.getAttr("defaultRenderGlobals.endFrame", end_frame)
+
+    # Build agenda for vray job
+    # agenda = qb.genframes(str(start_frame) + '-' + str(end_frame))
+    # jobs['vray_job']['agenda'] = agenda
+
     try:
         #if there is an agenda, is an API job
         if  jobs['vray_job']['project']:
