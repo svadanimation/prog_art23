@@ -1,9 +1,8 @@
 import json
 import os
 
-directory = "Z:\"
-filepath = os.path.join(os.path.realpath(C:\'text.json'))
-filepath2 = os.path.join(os.path.realpath(C:\'text.txt'))
+filepath = os.path.join(os.path.realpath(C:\Visual Studio\text.json))
+filepath2 = os.path.join(os.path.realpath(C:\Visual Studio\text.txt))
 
 with open("text.json","w") as f:
     f.write("Google it"\n)
