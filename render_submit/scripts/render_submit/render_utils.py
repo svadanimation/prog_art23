@@ -6,7 +6,7 @@ import os
 import re
 import subprocess
 from pprint import pprint
-import maya.cmds as mc
+import maya.cmds as mc # pylint: disable=import-error
 
 def get_renderable_camera():
     '''Get a list of renderable cameras

@@ -17,24 +17,13 @@ import winsound
 import os
 import json
 
-import maya.cmds as mc
+import maya.cmds as mc # pylint: disable=import-error
 
 # internal
 from render_submit import vray_submit
+from render_submit import shot_data
 
-def get_shot_data(filepath):
-    '''
-    This function is called by the UI to get the shot data
-    '''
-    # validate the file path
-    if not os.path.isfile(filepath):
-        mc.warning(f'File not found: {filepath}')
-        return None
 
-    with open(filepath, 'r', encoding='ascii') as f:
-        shots_data = json.load(f)
-
-    return shots_data
 
 def open_scene(filepath):
     '''Open the scene file'''
@@ -51,8 +40,8 @@ def open_scene(filepath):
 def render_shots(shots_data, progress=None, audition=False):
     '''Given a dictionary of shot data, open the scene and submit to farm
 
-    :param shot_data: dictionary of shots data, defaults to None
-    :type shot_data: dict, optional
+    :param shots_data: dictionary of shots data, defaults to None
+    :type shots_data: dict, optional
     :param audition: allows the scene loop to run without submission, defaults to False
     :type audition: bool, optional
     '''
@@ -77,13 +66,13 @@ def render_shots(shots_data, progress=None, audition=False):
         # stub, this may change
         vray_submit.apply_render_settings(
             # get the shot data
-            cut_in = shot_data.get('cut_in'),
-            cut_out = shot_data.get('cut_out'),
-            height = shot_data.get('height'),
-            width = shot_data.get('width'),
-            filename = shot_data.get('filename'),
-            render_directory = shot_data.get('render_directory'),
-            step = shot_data.get('step')
+            cut_in = shot.get('cut_in'),
+            cut_out = shot.get('cut_out'),
+            height = shot.get('height'),
+            width = shot.get('width'),
+            filename = shot.get('filename'),
+            outfile = shot.get('outifle'),
+            step = shot.get('step')
         )
 
         # audtion mode skips submitting and just checks the render loop
@@ -104,6 +93,6 @@ def completion_sound():
 
 if __name__ == "__main__":
     # get the shot data
-    shot_data = get_shot_data(r'Z:/vscode/progart23/render_submit/test/test_shot_data.json')
-    render_shots(shot_data, audition=True)
+    shots_data = shot_data.get_shot_data(r'Z:/vs_code_svad/prog_art23/render_submit/test/test_shot_data.json')
+    render_shots(shots_data, audition=True)
     

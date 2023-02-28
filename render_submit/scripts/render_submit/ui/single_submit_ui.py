@@ -2,8 +2,7 @@
     Display a validation UI for the Qube job dictionary
 
 '''
-from pprint import pprint
-import maya.cmds as mc
+import maya.cmds as mc # pylint: disable=import-error
 from render_submit import vray_submit
 
 

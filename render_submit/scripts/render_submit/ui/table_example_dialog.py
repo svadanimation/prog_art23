@@ -1,19 +1,13 @@
-'''
-Multi Submit UI
-'''
-
 import sys
-import os
 
-from PySide2 import QtCore # pylint: disable=import-error
-from PySide2 import QtWidgets # pylint: disable=import-error
-from shiboken2 import wrapInstance # pylint: disable=import-error
+from PySide2 import QtCore
+from PySide2 import QtWidgets
+from shiboken2 import wrapInstance
 
-import maya.OpenMaya as om # pylint: disable=import-error
-import maya.OpenMayaUI as omui # pylint: disable=import-error
-import maya.cmds as mc # pylint: disable=import-error
+import maya.OpenMaya as om
+import maya.OpenMayaUI as omui
+import maya.cmds as cmds
 
-from render_submit import shot_data
 
 def maya_main_window():
     """
@@ -23,21 +17,18 @@ def maya_main_window():
     if sys.version_info.major >= 3:
         return wrapInstance(int(main_window_ptr), QtWidgets.QWidget)
     else:
-        return wrapInstance(int(main_window_ptr), QtWidgets.QWidget)
+        return wrapInstance(long(main_window_ptr), QtWidgets.QWidget)
 
 
-class MultiSubmitTableDialog(QtWidgets.QDialog):
-    '''Table for displaying and editing multi submit data
-    '''
+class TableExampleDialog(QtWidgets.QDialog):
 
     ATTR_ROLE = QtCore.Qt.UserRole
     VALUE_ROLE = QtCore.Qt.UserRole + 1
 
-
     def __init__(self, parent=maya_main_window()):
-        super(MultiSubmitTableDialog, self).__init__(parent)
+        super(TableExampleDialog, self).__init__(parent)
 
-        self.setWindowTitle("Muilti Submit")
+        self.setWindowTitle("Table Example")
         self.setWindowFlags(self.windowFlags() ^ QtCore.Qt.WindowContextHelpButtonHint)
         self.setMinimumWidth(500)
 
@@ -45,21 +36,14 @@ class MultiSubmitTableDialog(QtWidgets.QDialog):
         self.create_layout()
         self.create_connections()
 
-        # This is terrible.
-        # Figure out how to pass the data in to the class
-        # or load from a file menu
-        self.filepath = r"Z:/vs_code_svad/prog_art23/render_submit/test/test_shot_data.json" 
-
     def create_widgets(self):
         self.table_wdg = QtWidgets.QTableWidget()
-        self.table_wdg.setColumnCount(7)
+        self.table_wdg.setColumnCount(5)
         self.table_wdg.setColumnWidth(0, 22)
-        self.table_wdg.setColumnWidth(2, 200)
+        self.table_wdg.setColumnWidth(2, 70)
         self.table_wdg.setColumnWidth(3, 70)
         self.table_wdg.setColumnWidth(4, 70)
-        self.table_wdg.setColumnWidth(5, 70)
-        self.table_wdg.setColumnWidth(6, 70)
-        self.table_wdg.setHorizontalHeaderLabels(["Active", "File", "Note", "Cut In", "Cut Out", "Res", "Step"])
+        self.table_wdg.setHorizontalHeaderLabels(["", "Name", "TransX", "TransY", "TransZ"])
         header_view = self.table_wdg.horizontalHeader()
         header_view.setSectionResizeMode(1, QtWidgets.QHeaderView.Stretch)
 
@@ -93,11 +77,11 @@ class MultiSubmitTableDialog(QtWidgets.QDialog):
             self.table_wdg.cellChanged.disconnect(self.on_cell_changed)
 
     def keyPressEvent(self, e):
-        super(MultiSubmitTableDialog, self).keyPressEvent(e)
+        super(TableExampleDialog, self).keyPressEvent(e)
         e.accept()
 
     def showEvent(self, e):
-        super(MultiSubmitTableDialog, self).showEvent(e)
+        super(TableExampleDialog, self).showEvent(e)
         self.refresh_table()
 
     def refresh_table(self):
@@ -105,23 +89,18 @@ class MultiSubmitTableDialog(QtWidgets.QDialog):
 
         self.table_wdg.setRowCount(0)
 
-        shots_data = shot_data.get_shot_data(self.filepath)
-        if not shots_data:
-            mc.warning(f'No shot data found in {self.filepath}')
-            return
-
-        for i, shot in shots_data.items():
-            i = int(i)
-            res = ':'.join(shot['res'])
+        meshes = cmds.ls(type="mesh")
+        for i in range(len(meshes)):
+            transform_name = cmds.listRelatives(meshes[i], parent=True)[0]
+            translation = cmds.getAttr("{0}.translate".format(transform_name))[0]
+            visible = cmds.getAttr("{0}.visibility".format(transform_name))
 
             self.table_wdg.insertRow(i)
-            self.insert_item(i, 0, "", "active", shot['active'], True)
-            self.insert_item(i, 1, shot['file'], None, shot['file'], False)
-            self.insert_item(i, 2, shot['note'], None, shot['note'], False)
-            self.insert_item(i, 3, shot['cut_in'], None, shot['cut_in'], False)
-            self.insert_item(i, 4, shot['cut_out'], None, shot['cut_out'], False)
-            self.insert_item(i, 5, res, None, res, False)
-            self.insert_item(i, 6, shot['step'], None, shot['step'], False)
+            self.insert_item(i, 0, "", "visibility", visible, True)
+            self.insert_item(i, 1, transform_name, None, transform_name, False)
+            self.insert_item(i, 2, self.float_to_string(translation[0]), "tx", translation[0], False)
+            self.insert_item(i, 3, self.float_to_string(translation[1]), "ty", translation[1], False)
+            self.insert_item(i, 4, self.float_to_string(translation[2]), "tz", translation[2], False)
 
         self.set_cell_changed_connection_enabled(True)
 
@@ -150,7 +129,7 @@ class MultiSubmitTableDialog(QtWidgets.QDialog):
         old_name = self.get_item_value(item)
         new_name = self.get_item_text(item)
         if old_name != new_name:
-            actual_new_name = mc.rename(old_name, new_name)
+            actual_new_name = cmds.rename(old_name, new_name)
             if actual_new_name != new_name:
                 self.set_item_text(item, actual_new_name)
 
@@ -169,7 +148,7 @@ class MultiSubmitTableDialog(QtWidgets.QDialog):
                 return
 
         try:
-            mc.setAttr(attr_name, value)
+            cmds.setAttr(attr_name, value)
         except:
             original_value = self.get_item_value(item)
             if is_boolean:
@@ -179,7 +158,7 @@ class MultiSubmitTableDialog(QtWidgets.QDialog):
 
             return
 
-        new_value = mc.getAttr(attr_name)
+        new_value = cmds.getAttr(attr_name)
         if is_boolean:
             self.set_item_checked(item, new_value)
         else:
@@ -236,8 +215,6 @@ if __name__ == "__main__":
         table_example_dialog.deleteLater()
     except:
         pass
-    
-    filepath = r'Z:/vs_code_svad/prog_art23/render_submit/test/test_shot_data.json'
 
-    table_example_dialog = MultiSubmitTableDialog()
+    table_example_dialog = TableExampleDialog()
     table_example_dialog.show()

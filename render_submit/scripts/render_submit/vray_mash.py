@@ -1,4 +1,4 @@
-import maya.cmds as mc
+import maya.cmds as mc # pylint: disable=import-error
 import os
 
 def instancerPreExport():

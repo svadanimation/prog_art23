@@ -4,7 +4,7 @@ Post translate paths in vray scenes
 
 # built-ins
 import os
-import vray.utils as vu
+import vray.utils as vu # pylint: disable=import-error
 
 # internal
 from render_submit import constants
@@ -21,7 +21,7 @@ def find_and_process_paths(debug=True):
     :param debug: verbose printing, defaults to True
     :type debug: bool, optional
     '''
-    local_drive_table = render_utils.uncDriveTable(remove = constants.NETWORK_SUFFIX)
+    local_drive_table = render_utils.unc_drive_table(remove = constants.NETWORK_SUFFIX)
 
     if debug: print ('Vray post translate paths: Finding meshes and bitmaps')
 
@@ -33,7 +33,7 @@ def find_and_process_paths(debug=True):
     for node in nodes:
         if debug: print (f'Node: {node}')
         path = node.get('file')
-        path = render_utils.uncMapper(path,
+        path = render_utils.unc_mapper(path,
                                      remove = constants.NETWORK_SUFFIX,
                                      drivetable=local_drive_table)
         path = path.replace(os.sep, '/')
@@ -49,7 +49,7 @@ def find_and_process_paths(debug=True):
         if debug: print (f'Scene {scene}')
 
         path = scene.get('filepath')
-        path = render_utils.uncMapper(path,
+        path = render_utils.unc_mapper(path,
                                      remove = constants.NETWORK_SUFFIX,
                                      drivetable=local_drive_table)
         path = path.replace(os.sep, '/')

@@ -9,14 +9,15 @@ TODO: Set in/out based on updated range in UI
 import os
 from pprint import pprint
 
-import maya.mel as mel
-import maya.cmds as mc
+import maya.mel as mel # pylint: disable=import-error
+import maya.cmds as mc # pylint: disable=import-error
 import qb
 
 # internal
 from render_submit import constants
 from render_submit import render_utils
 from render_submit import vray_mash
+
 
 
 def get_jobs(make_movie=False, project=False, high_memory=0):
@@ -268,7 +269,7 @@ def vray_standalone_post(jobs, show_ui=True):
     vrscene = jobs['vray_job']['package']['-sceneFile']
     render_path = jobs['vray_job']['renderpath']
     project = False
-    
+
     # range = jobs['vray_job']['package']['range']
     # start_frame, end_frame = range.split('-')
     # mc.setAttr("defaultRenderGlobals.startFrame", start_frame)
