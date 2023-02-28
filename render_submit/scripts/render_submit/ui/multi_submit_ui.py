@@ -39,16 +39,23 @@ class MultiSubmitTableDialog(QtWidgets.QDialog):
 
         self.setWindowTitle("Muilti Submit")
         self.setWindowFlags(self.windowFlags() ^ QtCore.Qt.WindowContextHelpButtonHint)
-        self.setMinimumWidth(500)
+        self.setMinimumWidth(600)
 
-        self.create_widgets()
+        self.create_menubar()
         self.create_layout()
         self.create_connections()
 
         # This is terrible.
         # Figure out how to pass the data in to the class
         # or load from a file menu
-        self.filepath = r"Z:/vs_code_svad/prog_art23/render_submit/test/test_shot_data.json" 
+        self.filepath = r"Z:/vs_code_svad/prog_art23/render_submit/test/test_shot_data.json"
+
+    def create_menubar(self):
+        self.menubar = QtWidgets.QMenuBar(self)
+        self.menubar.setNativeMenuBar(False)
+        self.file_menu = self.menubar.addMenu("File")
+        self.file_menu.addAction("Open", self.open_file)
+        self.file_menu.addAction("Save", self.save_file)
 
     def create_widgets(self):
         self.table_wdg = QtWidgets.QTableWidget()
@@ -79,6 +86,18 @@ class MultiSubmitTableDialog(QtWidgets.QDialog):
         main_layout.addWidget(self.table_wdg)
         main_layout.addStretch()
         main_layout.addLayout(button_layout)
+
+    def open_file(self):
+        filepath, _ = QtWidgets.QFileDialog.getOpenFileName(self, "Open File", "", "JSON (*.json)")
+        if filepath:
+            self.filepath = filepath
+            self.refresh_table()
+
+    def save_file(self):
+        filepath, _ = QtWidgets.QFileDialog.getSaveFileName(self, "Save File", "", "JSON (*.json)")
+        if filepath:
+            self.filepath = filepath
+            self.refresh_table()
 
     def create_connections(self):
         self.set_cell_changed_connection_enabled(True)
