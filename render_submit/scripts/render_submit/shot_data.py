@@ -5,6 +5,7 @@ This module contains the functions to get the shot data from the json file
 import json
 import os
 import maya.cmds as mc # pylint: disable=import-error
+import pprint
 
 appdata = os.getenv('APPDATA')
 recents_path = os.path.join(appdata, 'render_submit', 'recents.json')
@@ -93,3 +94,75 @@ def build_directory(filepath: str):
     else:
         print(f'Directory exists: {dirpath}')
         return True
+    
+'''
+This module contains the functions to get the shot data from the json file
+'''
+
+# grabbing shot data
+test_shot_path = 'Z:\\VSCODE\\prog_art23\\render_submit\\test\\test_shot_data.json'
+def get_shot_data(filepath):
+    '''
+    This function is called by the UI to get the shot data
+    '''
+    # validate the file path
+    if not os.path.isfile(filepath):
+        mc.warning(f'File not found: {filepath}')
+        return None
+
+    with open(filepath, 'r', encoding='ascii') as f:
+        shots_data = json.load(f)
+
+    return shots_data
+
+
+# Class to make changes to change keys and pairs within any subdict of a given key
+class FileEditor:
+    def __init__(self, file_info=None, file=None):
+
+        if file_info:
+            self.shot_list = file_info
+        elif file:
+            with open(file) as file:
+                self.shot_list = json.load(file)
+        else:
+            self.shot_list = {}
+
+        self.shot_list_format = {   "note" : None,
+                                    "cut_in" : None,
+                                    "cut_out" : None,
+                                    "infile" : None,
+                                    "outfile" : None,
+                                    "res" : None,
+                                    "step" : None,
+                                    "active" : None     }
+
+    def update_file(self, file):
+        with open(file, 'w') as file:
+            json.dump(self.shot_list, file)
+
+    def add_shot(self, id=None, name=None, start_frame=None, end_frame=None, in_path=None, out_path=None, resolution=["720", "1280"], step=1, active=False):
+        input_data = (name, start_frame, end_frame, in_path, out_path, resolution, step, active)
+        edited_format = self.shot_list_format
+
+        for data in input_data:
+            for id in self.shot_list_format:
+                edited_format[]
+        return self.shot_list
+
+    def remove_shot(self, id):
+        if id in self.shot_list:
+            del self.shot_list[id]
+        return self.shot_list
+
+    def rearrange_shot(self, order=[]):
+        if not order:
+            # mc.warning('Please input the order you would like to rearrange your shots')
+            return
+
+        else:
+            self.shot_list = {id:self.shot_list[id] for id in order if id in order}
+        return self.shot_list
+
+    def replace_shot(self, id, replacement_id{}):
+        self.shot_list[id] = replacement_id
