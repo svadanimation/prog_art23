@@ -54,8 +54,8 @@ def open_json(file_path, data):
     with open(file_path, 'w') as outfile:
         json.dump(data, outfile)
 #reads dict from json file
-def read_json():
-    with open(file_path_j, 'r') as openfile:
+def read_json(file_path):
+    with open(file_path, 'r') as openfile:
         read_json=json.load(openfile)
         pprint(read_json)
 
@@ -64,8 +64,8 @@ def ek_file_io():
      open_text(file_path_t, TEXT)
      pprint(read_string(file_path_t))
      pprint(JSON_FILE)
-     open_json()
-     read_json()
+     open_json(file_path_j, DATA)
+     read_json(file_path_j)
 
 if __name__ == "__main__":
      ek_file_io()
