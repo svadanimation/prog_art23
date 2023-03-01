@@ -7,13 +7,8 @@ import os
 import time
 
 def get_files(directory, file_types = ('*.ma', '*.mb')):
-    verify1 = os.path.abspath(directory)
-    verify2 = os.path.isdir(directory)
-
-    # TODO add isdir
-    # TODO rename types file_types
-    # TODO ** vs recursive, do we need both
-
+    directory = os.path.abspath(directory)
+    directory = os.path.isdir(directory)
     files = []
     for file_type in file_types:
         file_paths = glob.glob(os.path.join(directory, "**", file_type), recursive = True)
