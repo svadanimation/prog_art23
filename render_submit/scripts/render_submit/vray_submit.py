@@ -223,6 +223,46 @@ def get_jobs(make_movie=False, project=False, high_memory=0):
 
     return jobs
 
+def query_render_settings():
+    '''
+    TODO : @kaleb
+    Read all the render settings and return a dict with all the info in it
+    '''
+    shot = {}
+    shot['cut_in'] = mc.getAttr('defaultRenderGlobals.startFrame')
+
+    return shot
+
+def apply_render_settings(  cut_in = 0, 
+                            cut_out = 1,
+                            height = 720,
+                            width = 1280,
+                            filename = 'image.#.png',
+                            outfile = 'Z:/render',
+                            step = 1):
+    '''
+    Apply render settings
+    '''
+    # for each of these items set the corresponding attribute on the settings node
+    # mc.setAttr("defaultRenderGlobals.startFrame", start_frame)
+    # mc.getAttr("defaultRenderGlobals.endFrame", end_frame)
+    # mc.workspace(fileRule=['images','D:'])
+    # mc.setAttr('vraySettings.fileNamePrefix', 'test.#', type='string')
+    # mc.setAttr("vraySettings.imageFormatStr", 1)
+    # mc.setAttr("defaultRenderGlobals.startFrame", 1)
+    # mc.setAttr("defaultRenderGlobals.endFrame", 1)
+    # setAttr "defaultRenderGlobals.byFrameStep" 5;
+
+
+    pass
+
+# test
+# apply_render_settings(
+#     cut_in=5,
+#     cut_out=100,
+#     height=720,
+#     width=1280
+# )    
 
 def vray_submit_jobs(jobs = None,
                     make_movie=False,

@@ -39,8 +39,12 @@ for module_name in list(sys.modules.keys()):
     if module_name.startswith(current_package + '.'):
 
         # Reload the module using the importlib.reload() function
-        reload(sys.modules[module_name])
-        print(f'Module {module_name} has been reloaded...')
+        try:
+            reload(sys.modules[module_name])
+            print(f'Module {module_name} has been reloaded...')
+        except Exception as exc:
+            print(f'Module {module_name} FAILED reload...')
+
 
 print('All modules in package', current_package, 'have been reloaded.')
 
