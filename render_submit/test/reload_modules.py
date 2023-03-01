@@ -10,9 +10,15 @@ BASE = 'Z:/vs_code_svad/prog_art23/render_submit'
 SCRIPTS = 'scripts'
 ENV = os.path.join(BASE, SCRIPTS)
 PACKAGE = 'render_submit'
+QB = 'c:/Program Files/pfx/qube/api/python/'
+VRAY = "K:/Animation/Pipeline/SVAD_2023/vray/6/maya_vray/scripts/"
+
+paths = [ENV, QB, VRAY]
+
 if __name__ == '__main__':
-    if ENV not in sys.path:
-        sys.path.append(ENV)
+    for path in paths:
+        if path not in sys.path:
+            sys.path.append(path)
     current_package = PACKAGE
 else:
     # Get the name of the current package

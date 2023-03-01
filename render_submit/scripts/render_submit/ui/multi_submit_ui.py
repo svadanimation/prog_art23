@@ -1,9 +1,13 @@
 '''
 Multi Submit UI
+
+TODO: Add appdirs module to store recent file
+
 '''
 
 import sys
 import os
+from pprint import pprint
 
 from PySide2 import QtCore # pylint: disable=import-error
 from PySide2 import QtWidgets # pylint: disable=import-error
@@ -26,7 +30,7 @@ def maya_main_window():
         return wrapInstance(int(main_window_ptr), QtWidgets.QWidget)
 
 
-class MultiSubmitTableDialog(QtWidgets.QDialog):
+class MultiSubmitTableWindow(QtWidgets.QMainWindow):
     '''Table for displaying and editing multi submit data
     '''
 
@@ -35,30 +39,61 @@ class MultiSubmitTableDialog(QtWidgets.QDialog):
 
 
     def __init__(self, parent=maya_main_window()):
-        super(MultiSubmitTableDialog, self).__init__(parent)
+        super(MultiSubmitTableWindow, self).__init__(parent)
 
-        self.setWindowTitle("Muilti Submit")
+        self.setWindowTitle("Multi Submit")
         self.setWindowFlags(self.windowFlags() ^ QtCore.Qt.WindowContextHelpButtonHint)
         self.setMinimumWidth(600)
 
         self.create_menubar()
+        self.create_widgets()
         self.create_layout()
         self.create_connections()
+
+        self.shots_data = {}
 
         # This is terrible.
         # Figure out how to pass the data in to the class
         # or load from a file menu
-        self.filepath = r"Z:/vs_code_svad/prog_art23/render_submit/test/test_shot_data.json"
+        # self.filepath = r"Z:/vs_code_svad/prog_art23/render_submit/test/test_shot_data.json"
 
     def create_menubar(self):
         self.menubar = QtWidgets.QMenuBar(self)
         self.menubar.setNativeMenuBar(False)
-        self.file_menu = self.menubar.addMenu("File")
+        self.file_menu = self.menubar.addMenu("&File")
         self.file_menu.addAction("Open", self.open_file)
         self.file_menu.addAction("Save", self.save_file)
+        self.setMenuBar(self.menubar)
+
+        self.recent_files_menu = QtWidgets.QMenu("Recent Files", self)
+        self.file_menu.addMenu(self.recent_files_menu)
+        self.file_menu.addAction("Clear Recents", self.clear_recent_files)
+
+        # Create a QActionGroup to manage the recent file actions
+        self.recent_files_group = QtWidgets.QActionGroup(self)
+        self.recent_files_group.setExclusive(True)
+        self.recent_files_group.triggered.connect(self.open_recent_file)
+
+        # Add some sample recent files
+        recent_files = shot_data.load_recent_data()
+        if recent_files:
+            for recent_file in recent_files:
+                self.add_recent_file(recent_file)
+
+        # self.add_recent_file("/path/to/recent/file1.txt")
+        # self.add_recent_file("/path/to/recent/file2.txt")
+        # self.add_recent_file("/path/to/recent/file3.txt")
+        
 
     def create_widgets(self):
+        self.central_widget = QtWidgets.QWidget()
+        self.central_widget.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+
         self.table_wdg = QtWidgets.QTableWidget()
+        self.table_wdg.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+
+
+
         self.table_wdg.setColumnCount(7)
         self.table_wdg.setColumnWidth(0, 22)
         self.table_wdg.setColumnWidth(2, 200)
@@ -70,6 +105,8 @@ class MultiSubmitTableDialog(QtWidgets.QDialog):
         header_view = self.table_wdg.horizontalHeader()
         header_view.setSectionResizeMode(1, QtWidgets.QHeaderView.Stretch)
 
+        self.add_btn = QtWidgets.QPushButton("Add")
+        self.delete_btn = QtWidgets.QPushButton("Delete")
         self.refresh_btn = QtWidgets.QPushButton("Refresh")
         self.close_btn = QtWidgets.QPushButton("Close")
 
@@ -77,6 +114,8 @@ class MultiSubmitTableDialog(QtWidgets.QDialog):
         button_layout = QtWidgets.QHBoxLayout()
         button_layout.setSpacing(2)
         button_layout.addStretch()
+        button_layout.addWidget(self.add_btn)
+        button_layout.addWidget(self.delete_btn)
         button_layout.addWidget(self.refresh_btn)
         button_layout.addWidget(self.close_btn)
 
@@ -87,17 +126,66 @@ class MultiSubmitTableDialog(QtWidgets.QDialog):
         main_layout.addStretch()
         main_layout.addLayout(button_layout)
 
+        self.central_widget.setLayout(main_layout)
+        self.setCentralWidget(self.central_widget)
+
     def open_file(self):
-        filepath, _ = QtWidgets.QFileDialog.getOpenFileName(self, "Open File", "", "JSON (*.json)")
-        if filepath:
-            self.filepath = filepath
+        loadpath = mc.fileDialog2(fileMode=1, fileFilter="JSON (*.json)")[0]
+        if loadpath:
+            shots_data = shot_data.get_shot_data(loadpath)
+            if shots_data:
+                self.shots_data = shots_data
+                self.refresh_table()
+                self.add_recent_file(loadpath)
+
             self.refresh_table()
 
+    def open_recent_file(self, action):
+        loadpath = action.data()
+        if not os.path.isfile(loadpath):
+            self.recent_files_group.removeAction(action)
+            mc.confirmDialog(title="File Not Found",
+                             message=f"The file {loadpath} no longer exists.",
+                             button=["OK"])
+            return
+            
+        shots_data = shot_data.get_shot_data(loadpath)
+        if shots_data:
+            self.shots_data = shots_data
+            self.add_recent_file(loadpath)
+        self.refresh_table()
+
     def save_file(self):
-        filepath, _ = QtWidgets.QFileDialog.getSaveFileName(self, "Save File", "", "JSON (*.json)")
-        if filepath:
-            self.filepath = filepath
+        savepath = mc.fileDialog2(fileMode=0, fileFilter="JSON (*.json)")[0]
+        if savepath:
+            shot_data.save_shot_data(self.filepath, self.get_shot_data())
             self.refresh_table()
+
+    def add_recent_file(self, recent_filepath):
+        # Remove any existing action with the same filepath
+        for action in self.recent_files_group.actions():
+            if action.data() == recent_filepath:
+                self.recent_files_group.removeAction(action)
+
+        # Create a new action for the recent file
+        action = QtWidgets.QAction(recent_filepath, self)
+        action.setData(recent_filepath)
+        action.setToolTip(recent_filepath)
+        self.recent_files_group.addAction(action)
+
+        # Add the action to the recent files menu
+        self.recent_files_menu.addActions([action])
+
+        # Save the recent files to the settings file
+        shot_data.save_recent_data([action.data() for action in self.recent_files_group.actions()])
+
+    def clear_recent_files(self):
+        # Remove any existing action
+        for action in self.recent_files_group.actions():
+            self.recent_files_group.removeAction(action)
+
+        # Save the recent files to the settings file
+        shot_data.save_recent_data([action.data() for action in self.recent_files_group.actions()])
 
     def create_connections(self):
         self.set_cell_changed_connection_enabled(True)
@@ -112,24 +200,22 @@ class MultiSubmitTableDialog(QtWidgets.QDialog):
             self.table_wdg.cellChanged.disconnect(self.on_cell_changed)
 
     def keyPressEvent(self, e):
-        super(MultiSubmitTableDialog, self).keyPressEvent(e)
+        super(MultiSubmitTableWindow, self).keyPressEvent(e)
         e.accept()
 
     def showEvent(self, e):
-        super(MultiSubmitTableDialog, self).showEvent(e)
+        super(MultiSubmitTableWindow, self).showEvent(e)
         self.refresh_table()
 
     def refresh_table(self):
+        if not self.shots_data:
+            return
+        
         self.set_cell_changed_connection_enabled(False)
-
         self.table_wdg.setRowCount(0)
 
-        shots_data = shot_data.get_shot_data(self.filepath)
-        if not shots_data:
-            mc.warning(f'No shot data found in {self.filepath}')
-            return
 
-        for i, shot in shots_data.items():
+        for i, shot in self.shots_data.items():
             i = int(i)
             res = ':'.join(shot['res'])
 
@@ -187,24 +273,6 @@ class MultiSubmitTableDialog(QtWidgets.QDialog):
                 self.revert_original_value(item, False)
                 return
 
-        try:
-            mc.setAttr(attr_name, value)
-        except:
-            original_value = self.get_item_value(item)
-            if is_boolean:
-                self.set_item_checked(item, original_value)
-            else:
-                self.revert_original_value(item, False)
-
-            return
-
-        new_value = mc.getAttr(attr_name)
-        if is_boolean:
-            self.set_item_checked(item, new_value)
-        else:
-            self.set_item_text(item, self.float_to_string(new_value))
-        self.set_item_value(item, new_value)
-
     def set_item_text(self, item, text):
         item.setText(text)
 
@@ -258,5 +326,5 @@ if __name__ == "__main__":
     
     filepath = r'Z:/vs_code_svad/prog_art23/render_submit/test/test_shot_data.json'
 
-    table_example_dialog = MultiSubmitTableDialog()
+    table_example_dialog = MultiSubmitTableWindow()
     table_example_dialog.show()
