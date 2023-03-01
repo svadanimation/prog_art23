@@ -28,10 +28,7 @@ def maya_main_window():
     Return the Maya main window widget as a Python object
     """
     main_window_ptr = omui.MQtUtil.mainWindow()
-    if sys.version_info.major >= 3:
-        return wrapInstance(int(main_window_ptr), QtWidgets.QWidget)
-    else:
-        return wrapInstance(int(main_window_ptr), QtWidgets.QWidget)
+    return wrapInstance(int(main_window_ptr), QtWidgets.QWidget)
 
 
 class MultiSubmitTableWindow(QtWidgets.QMainWindow):
@@ -56,11 +53,6 @@ class MultiSubmitTableWindow(QtWidgets.QMainWindow):
 
         self.shots_data = {}
 
-        # This is terrible.
-        # Figure out how to pass the data in to the class
-        # or load from a file menu
-        # self.filepath = r"Z:/vs_code_svad/prog_art23/render_submit/test/test_shot_data.json"
-
     def create_menubar(self):
         self.menubar = QtWidgets.QMenuBar(self)
         self.menubar.setNativeMenuBar(False)
@@ -78,7 +70,7 @@ class MultiSubmitTableWindow(QtWidgets.QMainWindow):
         self.recent_files_group.setExclusive(True)
         self.recent_files_group.triggered.connect(self.open_recent_file)
 
-        # Add some sample recent files
+        # Add some recent files
         recent_files = shot_data.load_recent_data()
         if recent_files:
             for recent_file in recent_files:
@@ -98,7 +90,13 @@ class MultiSubmitTableWindow(QtWidgets.QMainWindow):
         self.table_wdg.setColumnWidth(4, 70)
         self.table_wdg.setColumnWidth(5, 70)
         self.table_wdg.setColumnWidth(6, 70)
-        self.table_wdg.setHorizontalHeaderLabels(["Active", "File", "Note", "Cut In", "Cut Out", "Res", "Step"])
+        self.table_wdg.setHorizontalHeaderLabels(["Active", 
+                                                  "File",
+                                                  "Note",
+                                                  "Cut In",
+                                                  "Cut Out",
+                                                  "Res",
+                                                  "Step"])
         header_view = self.table_wdg.horizontalHeader()
         header_view.setSectionResizeMode(1, QtWidgets.QHeaderView.Stretch)
 
@@ -222,8 +220,7 @@ class MultiSubmitTableWindow(QtWidgets.QMainWindow):
         self.table_wdg.setRowCount(0)
 
 
-        for i, shot in self.shots_data.items():
-            i = int(i)
+        for i, shot in enumerate(self.shots_data):
             res = ':'.join(shot['res'])
 
             self.table_wdg.insertRow(i)

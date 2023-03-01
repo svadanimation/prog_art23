@@ -9,13 +9,24 @@ import maya.cmds as mc # pylint: disable=import-error
 appdata = os.getenv('APPDATA')
 recents_path = os.path.join(appdata, 'render_submit', 'recents.json')
 
-def conform_shot_data(shots_data):
+def validate_shot_data(shots_data):
     '''
     This function is called by the UI to conform the shot data
     '''
     # if the shot data doesn't have the correct keys, throw it away
     # consider other cleanup if it is close
+    return True
+
+def add_shot():
     pass
+
+def remove_shot():
+    pass
+
+def reorder_list(item_list: list, old_order: list, new_order:list):
+    '''Given a list, and an order, and new order, reorder'''
+    pass
+    
 
 def get_shot_data(filepath):
     '''
@@ -29,7 +40,8 @@ def get_shot_data(filepath):
     with open(filepath, 'r', encoding='ascii') as f:
         shots_data = json.load(f)
 
-    return shots_data
+    if validate_shot_data(shots_data):
+        return shots_data
 
 def save_shot_data(filepath, shots_data):
     '''

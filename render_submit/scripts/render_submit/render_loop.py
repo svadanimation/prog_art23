@@ -24,15 +24,17 @@ from render_submit import vray_submit
 from render_submit import shot_data
 
 
-
 def open_scene(filepath):
     '''Open the scene file'''
-    if os.path.isfile(filepath):
-        # open the scene
-        try:
-            mc.file(filepath, open=True, force=True)
-        except Exception as ex:
-            mc.warning(f'Exception {ex} opening scene: {filepath}')
+    if not os.path.isfile(filepath):
+        mc.warning(f'Error opening file {filepath} does not exist')
+        return
+
+    # open the scene
+    try:
+        mc.file(filepath, open=True, force=True)
+    except Exception as ex:
+        mc.warning(f'Exception {ex} opening scene: {filepath}')
 
 
 # not sure how to yield the progress information
@@ -50,6 +52,8 @@ def render_shots(shots_data, progress=None, audition=False):
     # if not isinstance(progress, render_submit.ui.ProgressWindow):
     #     progress = None
 
+    # TODO: Think about if we should filter the active list here or on ui side
+    # probably here
     # use a list comprehension to get the length of the active shots
     # filters into a list
     active_shots = [shot for shot in shots_data if shot.get('active')]
@@ -60,10 +64,12 @@ def render_shots(shots_data, progress=None, audition=False):
         progress.maxValue=len(active_shots)
 
     for shot in active_shots:
+        
         # update the progress bar
         if progress:
-            self.progress_bar_label.setText(f"Processing operation: {i} (of {1})".format(i, number_of_operation))
-            self.progress_bar.setValue(i)
+            # check for interrupt
+            progres.progress_bar_label.setText(f"Processing operation: {i} (of {1})".format(i, number_of_operation))
+            progress.progress_bar.setValue(i)
             progress.step()
 
         # this opens every scene
@@ -77,7 +83,7 @@ def render_shots(shots_data, progress=None, audition=False):
             height = shot.get('height'),
             width = shot.get('width'),
             filename = shot.get('filename'),
-            outfile = shot.get('outifle'),
+            outfile = shot.get('outfile'),
             step = shot.get('step')
         )
 
