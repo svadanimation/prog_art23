@@ -6,17 +6,17 @@ import glob
 import os 
 import time
 
-def get_files(directory, types = ('*.ma', '*.mb')):
-    directory = os.path.abspath(directory)
+def get_files(directory, file_types = ('*.ma', '*.mb')):
+    verify1 = os.path.abspath(directory)
+    verify2 = os.path.isdir(directory)
 
     # TODO add isdir
     # TODO rename types file_types
     # TODO ** vs recursive, do we need both
 
     files = []
-    for type in types:
-        # files is the list of .ma and .mb files
-        file_paths = glob.glob(os.path.join(directory, '**', type), recursive=True)
+    for file_type in file_types:
+        file_paths = glob.glob(os.path.join(directory, "**", file_type), recursive = True)
         for file_path in file_paths:
             file_time = time.ctime(os.path.getmtime(file_path))
             files.append((file_path, file_time))
