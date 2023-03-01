@@ -1,8 +1,13 @@
 '''
 This is a tool that allows you to toggle back and forth between the stepped and splined defualt settings.
-It also allows you to change the tangents on any existing keys in a selection
+It also allows you to change the tangents on any existing keys in a selection.
 
--Kaleb Rivas
+Example:
+The UI has four buttons. The two buttons at the top will toggle the global default settings, while the two at the bottom will
+change the tangents on a selected object's keys. For the selection buttons to work, there must be a selection, or a warning will pop up.
+
+Author:
+Kaleb Rivas
 '''
 
 import maya.cmds as mc
@@ -42,8 +47,8 @@ def checkSettings():
 def updateButtons(editVal):
     spline, stepped = checkSettings()
     #The buttons will be active based on which mode we are in
-    mc.button("btnSpline", e=editVal, label="Change defualt to Splined", command=setSpliningPrefs, enable=spline)
-    mc.button("btnStep", e=editVal, label="Change defualt to Stepped", command=setBlockingPrefs, enable=stepped)
+    mc.button("btnSpline", e=editVal, label="Change default to Splined", command=setSpliningPrefs, enable=spline)
+    mc.button("btnStep", e=editVal, label="Change default to Stepped", command=setBlockingPrefs, enable=stepped)
 
 #This function labels the buttons 
 def updateText(editVal):
@@ -117,5 +122,5 @@ def UI():
     SelBtn()
     mc.showWindow(window1)
     
-    
-UI()
+if __name__ == "__main__":    
+    UI()
