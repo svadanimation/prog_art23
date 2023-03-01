@@ -2,15 +2,18 @@ import os
 import json
 from pprint import pprint
 
+# Dir setup
 FILEPATH = 'Z:\\'
 TEXT_FILE = 'text_file.txt'
 JSON_FILE = 'json_file.json'
 
+# Assigning dir to var
 txt_path = os.path.relpath(FILEPATH + TEXT_FILE)
 json_path = os.path.relpath(FILEPATH + JSON_FILE)
 
-text = "he110 w0r1d"
-data = {
+# Setting text/data constants
+TEXT = "he110 w0r1d"
+DATA = {
         'value_one' : 1,
         'value_two' : 2,
         'value_three' : 3,
@@ -19,17 +22,19 @@ data = {
         'value_six' : {'inside_value_one' : 'one', 'inside_value_two' : 'two'}
         }
 
-def write_text(text_to_append):
-    with open(txt_path, 'w+') as f:
-        f.write(text_to_append)
-
+# Write input text to txt file
+def write_text(path, text):
+    with open(path, 'w+') as f:
+        f.write(text)
+        new_txt= f.read(path)
+    return new_txt
     def read_text():
         with open(txt_path, 'r') as f:
             print(f'The file \'{TEXT_FILE}\' says: \n{f.read()}')
 
     read_text()
 
-def write_data(data_to_append):
+def write_data(path, data):
     with open(json_path, 'w') as f:
         json.dump(data, f)
 
@@ -40,8 +45,8 @@ def write_data(data_to_append):
     read_data()
 
 if __name__ == '__main__':
-    write_text(text)
-    write_data(data)
+    write_text(txt_path, TEXT)
+    write_data(json_path, DATA)
 
 '''
 
