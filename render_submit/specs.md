@@ -13,6 +13,9 @@ Assemble the files into a movie at the end.
 - Unfortunately, shot list isn't managed by a pipe, so it will be more complicated to build.
 - We can use pdplayer commandline to assemble shots or even nuke standalone. Probably clean this up as a dependent farm job in main submission.
 
+# TODO
+- change json structure to list!
+
 # Steps
 1. Build test data @saul
    1. Create 3 maya files that are ready to render

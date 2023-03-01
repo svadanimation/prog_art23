@@ -60,6 +60,12 @@ def render_shots(shots_data, progress=None, audition=False):
         progress.maxValue=len(active_shots)
 
     for shot in active_shots:
+        # update the progress bar
+        if progress:
+            self.progress_bar_label.setText(f"Processing operation: {i} (of {1})".format(i, number_of_operation))
+            self.progress_bar.setValue(i)
+            progress.step()
+
         # this opens every scene
         open_scene(shot.get('filepath'))
 
@@ -79,9 +85,6 @@ def render_shots(shots_data, progress=None, audition=False):
         if not audition:
             vray_submit.vray_submit_jobs(make_movie=False)
 
-        # update the progress bar
-        if progress:
-            progress.step()
 
     # play a sound when the loop is complete
     completion_sound()

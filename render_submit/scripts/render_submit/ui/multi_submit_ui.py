@@ -2,6 +2,9 @@
 Multi Submit UI
 
 TODO: Add appdirs module to store recent file
+TODO: How should shot data be structured and passed? 
+By dict or json?
+TODO: How should shot data be stored, as a list or by ID?
 
 '''
 
@@ -18,6 +21,7 @@ import maya.OpenMayaUI as omui # pylint: disable=import-error
 import maya.cmds as mc # pylint: disable=import-error
 
 from render_submit import shot_data
+from render_submit import render_loop
 
 def maya_main_window():
     """
@@ -80,19 +84,12 @@ class MultiSubmitTableWindow(QtWidgets.QMainWindow):
             for recent_file in recent_files:
                 self.add_recent_file(recent_file)
 
-        # self.add_recent_file("/path/to/recent/file1.txt")
-        # self.add_recent_file("/path/to/recent/file2.txt")
-        # self.add_recent_file("/path/to/recent/file3.txt")
-        
-
     def create_widgets(self):
         self.central_widget = QtWidgets.QWidget()
         self.central_widget.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
 
         self.table_wdg = QtWidgets.QTableWidget()
         self.table_wdg.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
-
-
 
         self.table_wdg.setColumnCount(7)
         self.table_wdg.setColumnWidth(0, 22)
@@ -105,6 +102,10 @@ class MultiSubmitTableWindow(QtWidgets.QMainWindow):
         header_view = self.table_wdg.horizontalHeader()
         header_view.setSectionResizeMode(1, QtWidgets.QHeaderView.Stretch)
 
+        self.progress_bar_label = QtWidgets.QLabel("Submit Progress")
+        self.progress_bar = QtWidgets.QProgressBar()
+
+        self.submit_btn = QtWidgets.QPushButton("Submit")
         self.add_btn = QtWidgets.QPushButton("Add")
         self.delete_btn = QtWidgets.QPushButton("Delete")
         self.refresh_btn = QtWidgets.QPushButton("Refresh")
@@ -114,6 +115,7 @@ class MultiSubmitTableWindow(QtWidgets.QMainWindow):
         button_layout = QtWidgets.QHBoxLayout()
         button_layout.setSpacing(2)
         button_layout.addStretch()
+        button_layout.addWidget(self.submit_btn)
         button_layout.addWidget(self.add_btn)
         button_layout.addWidget(self.delete_btn)
         button_layout.addWidget(self.refresh_btn)
@@ -124,6 +126,10 @@ class MultiSubmitTableWindow(QtWidgets.QMainWindow):
         main_layout.setSpacing(2)
         main_layout.addWidget(self.table_wdg)
         main_layout.addStretch()
+
+        main_layout.addWidget(self.progress_bar_label)
+        main_layout.addWidget(self.progress_bar)
+
         main_layout.addLayout(button_layout)
 
         self.central_widget.setLayout(main_layout)
@@ -190,6 +196,7 @@ class MultiSubmitTableWindow(QtWidgets.QMainWindow):
     def create_connections(self):
         self.set_cell_changed_connection_enabled(True)
 
+        self.submit_btn.clicked.connect(self.submit)
         self.refresh_btn.clicked.connect(self.refresh_table)
         self.close_btn.clicked.connect(self.close)
 
@@ -227,6 +234,20 @@ class MultiSubmitTableWindow(QtWidgets.QMainWindow):
             self.insert_item(i, 4, shot['cut_out'], None, shot['cut_out'], False)
             self.insert_item(i, 5, res, None, res, False)
             self.insert_item(i, 6, shot['step'], None, shot['step'], False)
+
+        self.set_cell_changed_connection_enabled(True)
+
+    def submit(self):
+        self.set_cell_changed_connection_enabled(False)
+
+        active_shots = []
+        for i in range(self.table_wdg.rowCount()):
+            item = self.table_wdg.item(i, 0)
+            if item.checkState() == QtCore.Qt.Checked:
+                active_shots.append(self.shots_data(i))
+
+        if active_shots:
+            render_loop.render_shots(active_shots, progress=self.progress_bar, audition=True)
 
         self.set_cell_changed_connection_enabled(True)
 
