@@ -5,7 +5,7 @@ This module contains the functions to get the shot data from the json file
 import json
 import os
 import maya.cmds as mc # pylint: disable=import-error
-import pprint
+from pprint import pprint
 
 appdata = os.getenv('APPDATA')
 recents_path = os.path.join(appdata, 'render_submit', 'recents.json')
@@ -18,16 +18,9 @@ def validate_shot_data(shots_data):
     # consider other cleanup if it is close
     return True
 
-def add_shot():
-    pass
-
-def remove_shot():
-    pass
-
 def reorder_list(item_list: list, old_order: list, new_order:list):
     '''Given a list, and an order, and new order, reorder'''
     pass
-    
 
 def get_shot_data(filepath):
     '''
@@ -126,33 +119,36 @@ class FileEditor:
             with open(file) as file:
                 self.shot_list = json.load(file)
         else:
-            self.shot_list = {}
+            self.shot_list = []
 
-        self.shot_list_format = {   "note" : None,
-                                    "cut_in" : None,
-                                    "cut_out" : None,
-                                    "infile" : None,
-                                    "outfile" : None,
-                                    "res" : None,
-                                    "step" : None,
-                                    "active" : None     }
+        self.id_format = {  "note" : None,
+                            "cut_in" : None,
+                            "cut_out" : None,
+                            "infile" : None,
+                            "outfile" : None,
+                            "res" : None,
+                            "step" : None,
+                            "active" : None     }
 
     def update_file(self, file):
         with open(file, 'w') as file:
             json.dump(self.shot_list, file)
 
-    def add_shot(self, id=None, name=None, start_frame=None, end_frame=None, in_path=None, out_path=None, resolution=["720", "1280"], step=1, active=False):
-        input_data = (name, start_frame, end_frame, in_path, out_path, resolution, step, active)
-        edited_format = self.shot_list_format
+    def add_shot(self, name=None, start_frame=None, end_frame=None, in_path=None, out_path=None, resolution=["720", "1280"], step=1, active=False):
+        input_data = [name, start_frame, end_frame, in_path, out_path, resolution, step, active]
+        edited_format = self.id_format
 
-        for data in input_data:
-            for id in self.shot_list_format:
-                edited_format[]
+        if id in self.shot_list:
+            # mc.warning("This shot already exists. Select a different shot or rename shot")
+            return
+        
+        for data in edited_format:
+            edited_format[data] = input_data[list(edited_format).index(data)]
+        self.shot_list.append(edited_format)
         return self.shot_list
 
-    def remove_shot(self, id):
-        if id in self.shot_list:
-            del self.shot_list[id]
+    def remove_shot(self, id=None):
+        self.shot_list.pop()
         return self.shot_list
 
     def rearrange_shot(self, order=[]):
@@ -164,5 +160,21 @@ class FileEditor:
             self.shot_list = {id:self.shot_list[id] for id in order if id in order}
         return self.shot_list
 
-    def replace_shot(self, id, replacement_id{}):
+    def replace_shot(self, id, replacement_id={}):
         self.shot_list[id] = replacement_id
+
+'''
+
+TESTING:
+
+test_path = get_shot_data(test_shot_path)
+test_editor = FileEditor(file_info=test_path)
+pprint(test_editor.shot_list, sort_dicts=False)
+
+test_editor.add_shot(name="test_name_two", start_frame="0", end_frame="100", in_path="test_in", out_path="test_out")
+pprint(test_editor.shot_list, sort_dicts=False)
+
+test_editor.remove_shot(-1)
+pprint(test_editor.shot_list, sort_dicts=False)
+
+'''
