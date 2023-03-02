@@ -6,7 +6,7 @@ from shiboken2 import wrapInstance
 
 import maya.OpenMaya as om
 import maya.OpenMayaUI as omui
-import maya.cmds as cmds
+import maya.cmds as mc
 
 from render_submit import file_grep
 
