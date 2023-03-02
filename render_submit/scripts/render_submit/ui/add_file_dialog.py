@@ -6,7 +6,7 @@ from shiboken2 import wrapInstance
 
 import maya.OpenMaya as om
 import maya.OpenMayaUI as omui
-import maya.cmds as cmds
+import maya.cmds as mc
 
 from render_submit import file_grep
 
@@ -45,11 +45,13 @@ class MultiSelectDialog(QtWidgets.QDialog):
         self.list_wdg.addItems(self.items)
 
         self.close_btn = QtWidgets.QPushButton("Close")
+        self.add_btn = QtWidgets.QPushButton("Add")
 
     def create_layout(self):
 
         button_layout = QtWidgets.QHBoxLayout()
         button_layout.addStretch()
+        button_layout.addWidget(self.add_btn)
         button_layout.addWidget(self.close_btn)
 
         main_layout = QtWidgets.QVBoxLayout(self)
@@ -67,6 +69,7 @@ class MultiSelectDialog(QtWidgets.QDialog):
         self.list_wdg.itemSelectionChanged.connect(self.print_selected_item)
 
         self.close_btn.clicked.connect(self.close)
+        self.add_btn.clicked.connect(self.add_selected_item)
 
     def filter_list(self, text):
         self.list_wdg.clear() # clear the list widget
@@ -90,8 +93,19 @@ class MultiSelectDialog(QtWidgets.QDialog):
         for item in items:
             selected_item_labels.append(item.text())
 
-            # return?
-            # TODO: send this info back
+        # check if window already exists
+        if mc.window('Added', exists=True):
+            mc.deleteUI('Added')
+              
+        # create window and layout
+        window = mc.window(title='Added', widthHeight=(300, 300))
+        mc.columnLayout(adjustableColumn=True)
+
+        # create text scroll list and add selected items
+        list_layout = mc.textScrollList(numberOfRows=35)
+        mc.textScrollList(list_layout, edit=True, append=selected_item_labels)
+
+        mc.showWindow(window)
 
 if __name__ == "__main__":
 
