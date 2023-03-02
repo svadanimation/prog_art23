@@ -102,6 +102,6 @@ def completion_sound():
 
 if __name__ == "__main__":
     # get the shot data
-    shots_data = shot_data.get_shot_data(r'Z:/vs_code_svad/prog_art23/render_submit/test/test_shot_data.json')
+    shots_data = shot_data.load_shot_data(r'Z:/vs_code_svad/prog_art23/render_submit/test/test_shot_data.json')
     render_shots(shots_data, audition=True)
     

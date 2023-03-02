@@ -1,11 +1,6 @@
 '''
 Multi Submit UI
 
-TODO: Add appdirs module to store recent file
-TODO: How should shot data be structured and passed? 
-By dict or json?
-TODO: How should shot data be stored, as a list or by ID?
-
 '''
 
 import sys
@@ -19,6 +14,8 @@ from shiboken2 import wrapInstance # pylint: disable=import-error
 import maya.OpenMaya as om # pylint: disable=import-error
 import maya.OpenMayaUI as omui # pylint: disable=import-error
 import maya.cmds as mc # pylint: disable=import-error
+
+from render_submit.ui import add_file_dialog
 
 from render_submit import shot_data
 from render_submit import render_loop
@@ -42,6 +39,8 @@ class MultiSubmitTableWindow(QtWidgets.QMainWindow):
     def __init__(self, parent=maya_main_window()):
         super(MultiSubmitTableWindow, self).__init__(parent)
 
+        self.multi_select_dialog = add_file_dialog.MultiSelectDialog(parent=self)
+
         self.setWindowTitle("Multi Submit")
         self.setWindowFlags(self.windowFlags() ^ QtCore.Qt.WindowContextHelpButtonHint)
         self.setMinimumWidth(600)
@@ -51,7 +50,9 @@ class MultiSubmitTableWindow(QtWidgets.QMainWindow):
         self.create_layout()
         self.create_connections()
 
-        self.shots_data = {}
+        self.shots_data = []
+        self.add_shots_data = []
+        self.active_file = None
 
     def create_menubar(self):
         self.menubar = QtWidgets.QMenuBar(self)
@@ -59,6 +60,7 @@ class MultiSubmitTableWindow(QtWidgets.QMainWindow):
         self.file_menu = self.menubar.addMenu("&File")
         self.file_menu.addAction("Open", self.open_file)
         self.file_menu.addAction("Save", self.save_file)
+        self.file_menu.addAction("Save As", self.save_file_as)
         self.setMenuBar(self.menubar)
 
         self.recent_files_menu = QtWidgets.QMenu("Recent Files", self)
@@ -105,6 +107,7 @@ class MultiSubmitTableWindow(QtWidgets.QMainWindow):
 
         self.submit_btn = QtWidgets.QPushButton("Submit")
         self.add_btn = QtWidgets.QPushButton("Add")
+        self.search_btn = QtWidgets.QPushButton("Search")
         self.delete_btn = QtWidgets.QPushButton("Delete")
         self.refresh_btn = QtWidgets.QPushButton("Refresh")
         self.close_btn = QtWidgets.QPushButton("Close")
@@ -114,6 +117,7 @@ class MultiSubmitTableWindow(QtWidgets.QMainWindow):
         button_layout.setSpacing(2)
         button_layout.addStretch()
         button_layout.addWidget(self.submit_btn)
+        button_layout.addWidget(self.search_btn)
         button_layout.addWidget(self.add_btn)
         button_layout.addWidget(self.delete_btn)
         button_layout.addWidget(self.refresh_btn)
@@ -133,13 +137,43 @@ class MultiSubmitTableWindow(QtWidgets.QMainWindow):
         self.central_widget.setLayout(main_layout)
         self.setCentralWidget(self.central_widget)
 
+    def create_connections(self):
+        self.set_cell_changed_connection_enabled(True)
+
+        self.submit_btn.clicked.connect(self.submit)
+        self.refresh_btn.clicked.connect(self.refresh_table)
+        self.close_btn.clicked.connect(self.close)
+        self.search_btn.clicked.connect(self.search_add_shots)
+        self.add_btn.clicked.connect(self.add_shot)
+
+    def search_add_shots(self):
+        self.multi_select_dialog.show()
+
+    def add_shots(self, shots):
+        # for add_filepath in self.add_shots_data:
+        for add_filepath in shots:
+            shots_data = shot_data.insert_shot(self.shots_data, add_filepath)
+            if shots_data:
+                self.shots_data = shots_data
+
+            self.refresh_table()
+            self.add_shots_data = []
+
+    def add_shot(self):
+        loadpath = mc.fileDialog2(fileMode=1, fileFilter="Maya Files (*.ma *.mb)")[0]
+        if loadpath:
+            shots_data = shot_data.insert_shot(self.shots_data, loadpath)
+            if shots_data:
+                self.shots_data = shots_data
+
+            self.refresh_table()
+
     def open_file(self):
         loadpath = mc.fileDialog2(fileMode=1, fileFilter="JSON (*.json)")[0]
         if loadpath:
-            shots_data = shot_data.get_shot_data(loadpath)
+            shots_data = shot_data.load_shot_data(loadpath)
             if shots_data:
                 self.shots_data = shots_data
-                self.refresh_table()
                 self.add_recent_file(loadpath)
 
             self.refresh_table()
@@ -153,17 +187,29 @@ class MultiSubmitTableWindow(QtWidgets.QMainWindow):
                              button=["OK"])
             return
             
-        shots_data = shot_data.get_shot_data(loadpath)
+        shots_data = shot_data.load_shot_data(loadpath)
         if shots_data:
             self.shots_data = shots_data
+            self.active_file = loadpath
             self.add_recent_file(loadpath)
         self.refresh_table()
 
     def save_file(self):
+        if self.active_file is None:
+            self.save_file_as()
+            return
+        
+        if os.path.isfile(self.active_file):
+            shot_data.save_shot_data(self.active_file, self.shots_data)
+        else:
+            self.save_file_as()
+
+    def save_file_as(self):
         savepath = mc.fileDialog2(fileMode=0, fileFilter="JSON (*.json)")[0]
         if savepath:
-            shot_data.save_shot_data(self.filepath, self.get_shot_data())
-            self.refresh_table()
+            shot_data.save_shot_data(savepath, self.shots_data)
+            self.active_file = savepath
+            self.add_recent_file(savepath)
 
     def add_recent_file(self, recent_filepath):
         # Remove any existing action with the same filepath
@@ -191,12 +237,7 @@ class MultiSubmitTableWindow(QtWidgets.QMainWindow):
         # Save the recent files to the settings file
         shot_data.save_recent_data([action.data() for action in self.recent_files_group.actions()])
 
-    def create_connections(self):
-        self.set_cell_changed_connection_enabled(True)
 
-        self.submit_btn.clicked.connect(self.submit)
-        self.refresh_btn.clicked.connect(self.refresh_table)
-        self.close_btn.clicked.connect(self.close)
 
     def set_cell_changed_connection_enabled(self, enabled):
         if enabled:

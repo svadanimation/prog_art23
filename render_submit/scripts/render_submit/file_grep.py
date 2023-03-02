@@ -19,9 +19,10 @@ def get_files(directory, file_types = ('*.ma', '*.mb')):
             # file_time = time.ctime(os.path.getmtime(file_path))
             file_time = os.path.getmtime(file_path)
             files.append((file_path, file_time))
-
-    sort_tuple(files)
-    files = [f[0] for f in files]
+    if files:
+        sort_tuple(files)
+        files = [f[0] for f in files]
+        files.reverse()
 
     return files
 
