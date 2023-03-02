@@ -5,7 +5,7 @@ from PySide2 import QtCore
 from PySide2 import QtWidgets
 from shiboken2 import wrapInstance
 
-import maya.cmds as cmds
+import maya.cmds as mc
 import maya.OpenMayaUI as omui
 
 
@@ -28,9 +28,9 @@ class ProgressTestDialog(QtWidgets.QDialog):
         super(ProgressTestDialog, self).__init__(parent)
 
         self.setWindowTitle(self.WINDOW_TITLE)
-        if cmds.about(ntOS=True):
+        if mc.about(ntOS=True):
             self.setWindowFlags(self.windowFlags() ^ QtCore.Qt.WindowContextHelpButtonHint)
-        elif cmds.about(macOS=True):
+        elif mc.about(macOS=True):
             self.setWindowFlags(QtCore.Qt.Tool)
 
         self.setMinimumSize(300, 100)
