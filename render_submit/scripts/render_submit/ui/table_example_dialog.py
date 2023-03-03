@@ -188,6 +188,7 @@ class TableExampleDialog(QtWidgets.QDialog):
 
     def set_item_value(self, item, value):
         item.setData(self.VALUE_ROLE, value)
+        
 
     def get_item_value(self, item):
         return item.data(self.VALUE_ROLE)

@@ -11,14 +11,23 @@ appdata = os.getenv('APPDATA')
 recents_path = os.path.join(appdata, 'render_submit', 'recents.json')
 
 SHOT_TEMPLATE = {
-                'note': '',
-                'cut_in': '0',
-                'cut_out': '10',
+                'active': 'True',
                 'file': '',
-                'outfile': 'image.#.png',
-                'res': ['1280','720'],
-                'step': 1,
-                'active': True
+                'note': '',
+                'cut_in': '',
+                'cut_out': '',
+                'res': '',
+                'step': ''
+                }
+
+SHOT_TEMPLATE_TYPE = {
+                'active': 'bool',
+                'file': 'str',
+                'note': 'str',
+                'cut_in': 'int',
+                'cut_out': 'int',
+                'res': 'int',
+                'step': 'int'
                 }
 
 def validate_shot_data(shots_data):
@@ -60,6 +69,14 @@ def insert_shot(shots_data, filepath, id=None):
         shots_data.insert(id, shot)
 
     return shots_data
+
+def shot_exists(shots_data, filepath):
+    '''Checks if a shot already exists in the shot data
+    '''
+    for shot in shots_data:
+        if shot['file'] == filepath:
+            return True
+    return False
 
 def remove_shot(shots_data, filepath=None, id=None):
     '''Removes a shot from the shot data
@@ -111,7 +128,7 @@ def save_shot_data(filepath, shots_data):
     if not os.path.isdir(os.path.dirname(filepath)):
         mc.warning(f'Directory not found: {filepath}')
         return None
-    
+  
     with open(filepath, 'w', encoding='ascii') as f:
         try:
             json.dump(shots_data, f, indent=4)

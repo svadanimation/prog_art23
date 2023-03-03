@@ -3,16 +3,15 @@ TODO write a refresh function
 TODO call after a dir is added.
 '''
 
-import sys
 import os
 
-from PySide2 import QtCore
-from PySide2 import QtWidgets
-from shiboken2 import wrapInstance
+from PySide2 import QtCore # pylint: disable=import-error
+from PySide2 import QtWidgets # pylint: disable=import-error
+from shiboken2 import wrapInstance # pylint: disable=import-error
 
-import maya.OpenMaya as om
-import maya.OpenMayaUI as omui
-import maya.cmds as mc
+import maya.OpenMaya as om # pylint: disable=import-error
+import maya.OpenMayaUI as omui # pylint: disable=import-error
+import maya.cmds as mc # pylint: disable=import-error
 
 from render_submit import file_grep
 
@@ -80,6 +79,14 @@ class MultiSelectDialog(QtWidgets.QDialog):
         self.close_btn.clicked.connect(self.add_selected_items)
         self.search_btn.clicked.connect(self.search_directory)
 
+    def show_add_dialog(self):
+        # This double test seems odd
+        # Handles canceling the dialog
+        if not self.items:
+            self.search_directory()
+        if self.items:
+            self.show()
+
     def refresh_list(self):
         self.list_wdg.clear()
         self.filter_line_edit.clear()
@@ -107,9 +114,8 @@ class MultiSelectDialog(QtWidgets.QDialog):
         for item in items:
             selected_item_labels.append(item.text())
 
-        # TODO pass data as input to function with *args
+        # print(f'Adding {selected_item_labels} to the list')
         if not isinstance(self.parent, omui.MQtUtil):
-            self.parent.add_shots_data = selected_item_labels
             self.parent.add_shots(selected_item_labels)
   
     
@@ -117,7 +123,11 @@ class MultiSelectDialog(QtWidgets.QDialog):
         directory = mc.fileDialog2(fileMode=3, 
                                    dialogStyle=2, 
                                    caption="Select Directory", 
-                                   okc='Select')[0]
+                                   okc='Select')
+        if directory: 
+            directory = directory[0] 
+        else: return []
+
         if not os.path.isdir(directory):
             return []
         
@@ -127,8 +137,8 @@ class MultiSelectDialog(QtWidgets.QDialog):
 if __name__ == "__main__":
 
     try:
-        multi_select_dialog.close() # pylint: disable=E0601
-        multi_select_dialog.deleteLater()
+        multi_select_dialog.close() # pylint: disable=[E0601, E0602]
+        multi_select_dialog.deleteLater() # pylint: disable=[E0601, E0602]
     except:
         pass
 

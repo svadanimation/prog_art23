@@ -36,6 +36,7 @@ from render_submit.ui import multi_submit_ui
 from render_submit.ui import add_file_dialog
 
 # Iterate over the modules in sys.modules with the same package name
+success = True
 for module_name in list(sys.modules.keys()):
     if module_name.startswith(current_package + '.'):
 
@@ -44,11 +45,13 @@ for module_name in list(sys.modules.keys()):
             reload(sys.modules[module_name])
             print(f'Module {module_name} has been reloaded...')
         except Exception as exc:
+            success = False
             print(f'Module {module_name} FAILED reload...')
 
-
-print('All modules in package', current_package, 'have been reloaded.')
-
+if success:
+    print(f'SUCCESS: All modules in package {current_package} have been reloaded.')
+else:
+    print('FAILURE: Some modules in package {current_package} have failed to reload.')
 
 
 # vray_submit.vray_submit_jobs(make_movie=True)
