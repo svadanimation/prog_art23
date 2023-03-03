@@ -1,16 +1,7 @@
 '''
 Open a series of shots and submit to farm
 
-There is an interesting decorator here:
-http://josbalcaen.com/maya-python-progress-decorator/
-Will probably pass in a class instance to the render loop instead of using a decorator
-
-Ideally, we would like to have a progress bar that shows the progress of the
-render loop in the main ui window.
-
-probably makes sense to import this into a UI class that can update the progress window
-not sure how to properly interrupt the loop if the user cancels the progress window
-
+Pass in optional ui class instance to update progress bar
 '''
 # builtins
 import winsound
