@@ -240,39 +240,28 @@ def query_render_settings():
 
     return shot
 
-def apply_render_settings(  cut_in = 0, 
-                            cut_out = 1,
-                            height = 720,
-                            width = 1280,
-                            filename = 'img.#',
-                            outfile = 'Z:/render',
-                            step = 1,
-                            image_format = 'jpg',
-                            motion_blur = 0,
-                            viewport_subdivision = 1,
-                            maxSubdivs = 3):
-    mc.setAttr("defaultRenderGlobals.startFrame", cut_in)
-    mc.setAttr("defaultRenderGlobals.endFrame", cut_out)
-    mc.setAttr('vraySettings.fileNamePrefix', filename, type='string')
-    mc.setAttr("vraySettings.imageFormatStr",image_format, type='string')
-    mc.workspace(fileRule=['images',outfile])
-    mc.setAttr("vraySettings.height", height)
-    mc.setAttr("vraySettings.width", width)
-    mc.setAttr ("defaultRenderGlobals.byFrameStep", step)
-    mc.setAttr ("vraySettings.cam_mbOn", motion_blur)
-    mc.setAttr ("vraySettings.globopt_render_viewport_subdivision", viewport_subdivision)
-    mc.setAttr ("vraySettings.progressiveMaxSubdivs", maxSubdivs)
-
-
-
-
-# test
-# apply_render_settings(
-#     cut_in=5,
-#     cut_out=100,
-#     height=720,
-#     width=1280
-# )    
+def apply_render_settings(  cut_in = None, 
+                            cut_out = None,
+                            height = None,
+                            width = None,
+                            filename = None,
+                            outfile = None,
+                            step = None,
+                            image_format = None,
+                            motion_blur = None,
+                            viewport_subdivision = None,
+                            max_subdivs = None):
+    if cut_in: mc.setAttr("defaultRenderGlobals.startFrame", cut_in)
+    if cut_out: mc.setAttr("defaultRenderGlobals.endFrame", cut_out)
+    if filename: mc.setAttr('vraySettings.fileNamePrefix', filename, type='string')
+    if image_format: mc.setAttr("vraySettings.imageFormatStr",image_format, type='string')
+    if outfile: mc.workspace(fileRule=['images',outfile])
+    if height: mc.setAttr("vraySettings.height", height)
+    if width: mc.setAttr("vraySettings.width", width)
+    if step: mc.setAttr ("defaultRenderGlobals.byFrameStep", step)
+    if motion_blur: mc.setAttr ("vraySettings.cam_mbOn", motion_blur)
+    if viewport_subdivision: mc.setAttr ("vraySettings.globopt_render_viewport_subdivision", viewport_subdivision)
+    if max_subdivs: mc.setAttr ("vraySettings.progressiveMaxSubdivs", max_subdivs)
 
 def vray_submit_jobs(jobs = None,
                     make_movie=False,
@@ -318,17 +307,11 @@ def vray_standalone_post(jobs, show_ui=True):
     '''
     vrscene = jobs['vray_job']['package']['-sceneFile']
     render_path = jobs['vray_job']['renderpath']
+    height = int(jobs['vray_job']['package']['-imgHeight'])
+    width = int(jobs['vray_job']['package']['-imgWidth'])
+
+
     project = False
-
-    # range = jobs['vray_job']['package']['range']
-    # start_frame, end_frame = range.split('-')
-    # mc.setAttr("defaultRenderGlobals.startFrame", start_frame)
-    # mc.getAttr("defaultRenderGlobals.endFrame", end_frame)
-
-    # Build agenda for vray job
-    # agenda = qb.genframes(str(start_frame) + '-' + str(end_frame))
-    # jobs['vray_job']['agenda'] = agenda
-
     try:
         #if there is an agenda, is an API job
         if  jobs['vray_job']['project']:
@@ -387,6 +370,8 @@ def vray_standalone_post(jobs, show_ui=True):
                 values = True,
                 ksc=True)
 
+    mc.setAttr("vraySettings_qubeExport.height", height)
+    mc.setAttr("vraySettings_qubeExport.width", width)
     mc.setAttr("vraySettings_qubeExport.animType", 1)
     mc.setAttr("vraySettings_qubeExport.vrscene_render_on", 0)
     mc.setAttr("vraySettings_qubeExport.vrscene_on", 1)

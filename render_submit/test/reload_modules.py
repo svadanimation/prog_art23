@@ -53,6 +53,15 @@ if success:
 else:
     print('FAILURE: Some modules in package {current_package} have failed to reload.')
 
+if __name__ == "__main__":
 
-# vray_submit.vray_submit_jobs(make_movie=True)
-# submit_ui = single_submit_ui.SubmitUI()
+    try:
+        multi_submit_dialog.close() # pylint: disable=E0601
+        multi_submit_dialog.deleteLater() # pylint: disable=E0601
+    except:
+        pass
+    
+    multi_submit_dialog = multi_submit_ui.MultiSubmitTableWindow()
+    multi_submit_dialog.show()
+    # vray_submit.vray_submit_jobs(make_movie=True)
+    # submit_ui = single_submit_ui.SubmitUI()

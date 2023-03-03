@@ -11,13 +11,15 @@ appdata = os.getenv('APPDATA')
 recents_path = os.path.join(appdata, 'render_submit', 'recents.json')
 
 SHOT_TEMPLATE = {
-                'active': 'True',
+                'active': True,
                 'file': '',
                 'note': '',
                 'cut_in': '',
                 'cut_out': '',
                 'res': '',
-                'step': ''
+                'step': '',
+                'movie': True, 
+                'osx': False 
                 }
 
 SHOT_TEMPLATE_TYPE = {
@@ -27,7 +29,9 @@ SHOT_TEMPLATE_TYPE = {
                 'cut_in': 'int',
                 'cut_out': 'int',
                 'res': 'int',
-                'step': 'int'
+                'step': 'int',
+                'movie': 'bool',
+                'osx': 'bool'
                 }
 
 def validate_shot_data(shots_data):

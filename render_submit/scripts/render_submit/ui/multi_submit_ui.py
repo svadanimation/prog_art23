@@ -49,6 +49,7 @@ class MultiSubmitTableWindow(QtWidgets.QMainWindow):
         # data
         self.column_headers = list(shot_data.SHOT_TEMPLATE.keys())
         self.column_types = list(shot_data.SHOT_TEMPLATE.values())
+        self.count = len(self.column_headers)-1
         self.shots_data = []
         self.active_file = None
         self.allow_duplicates = False
@@ -102,13 +103,12 @@ class MultiSubmitTableWindow(QtWidgets.QMainWindow):
         self.table_wdg = QtWidgets.QTableWidget()
         self.table_wdg.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
 
-        self.table_wdg.setColumnCount(7)
+        self.table_wdg.setColumnCount(self.count+1)
         self.table_wdg.setColumnWidth(0, 22)
         self.table_wdg.setColumnWidth(2, 200)
-        self.table_wdg.setColumnWidth(3, 70)
-        self.table_wdg.setColumnWidth(4, 70)
-        self.table_wdg.setColumnWidth(5, 70)
-        self.table_wdg.setColumnWidth(6, 70)
+        for i in range(3, self.count+1):
+            self.table_wdg.setColumnWidth(i, 70)
+
         self.table_wdg.setHorizontalHeaderLabels(self.column_headers)
         header_view = self.table_wdg.horizontalHeader()
         header_view.setSectionResizeMode(1, QtWidgets.QHeaderView.Stretch)
@@ -173,7 +173,7 @@ class MultiSubmitTableWindow(QtWidgets.QMainWindow):
 
         item = self.table_wdg.itemAt(pos)
         if item is not None:
-            print(f'Selected item: {item.text()}')
+            # print(f'Selected item: {item.text()}')
             row = item.row()
             open_action = menu.addAction('Open')
             copy_action = menu.addAction('Copy Text')
@@ -181,13 +181,13 @@ class MultiSubmitTableWindow(QtWidgets.QMainWindow):
             action = menu.exec_(self.centralWidget().mapToGlobal(pos))
 
             if action == open_action:
-                print('Open action triggered')
+                # print('Open action triggered')
                 self.open_maya_file(row)
             elif action == copy_action:
-                print('Copy action triggered')
+                # print('Copy action triggered')
                 self.copy_to_clipboard(item)
             elif action == delete_action:
-                print('Delete action triggered')
+                # print('Delete action triggered')
                 self.delete_row(row)
 
     def copy_to_clipboard(self, item):
@@ -376,9 +376,12 @@ class MultiSubmitTableWindow(QtWidgets.QMainWindow):
             self.insert_item(i, 1, str(shot['file']), None, shot['file'], False)
 
             for j, key in enumerate(self.column_headers):
-                if j < 2:
+                # print(f'j: {j}, key: {key} count: {self.count}')
+                if j < 2 or j > self.count-2:
                     continue
                 self.insert_item(i, j, str(shot[key]), key, shot[key], False)
+            self.insert_item(i, self.count-1, "", "movie", shot['movie'], True)
+            self.insert_item(i, self.count, "", "osx", shot['osx'], True)
 
         self.set_cell_changed_connection_enabled(True)
 
@@ -401,7 +404,7 @@ class MultiSubmitTableWindow(QtWidgets.QMainWindow):
                                     #  label = self.progress_bar_label,
                                     #  progress=self.progress_bar,
                                     ui = self,
-                                    audition=True)
+                                    audition=False)
         else:
             mc.confirmDialog(title="No Shots Selected",
                              message="No shots are selected to submit.",
@@ -436,14 +439,15 @@ class MultiSubmitTableWindow(QtWidgets.QMainWindow):
             self.update_shots_data(row, header, item, is_locked=True)
         elif column == 2:
             self.update_shots_data(row, header, item)
-        elif column >= 3:
+        elif 3 <= column <= self.count-2:
             self.update_shots_data(row, header, item, is_int=True)
         else:
-            is_boolean = column == 0
+            # TODO get the data types from the shot_data module
+            is_boolean = column == 0 or column <= self.count-1
             # self.update_attr(self.get_full_attr_name(row, item), item, is_boolean)
             
             # get the key/header from the item
-            self.update_shots_data(row, header, item, is_boolean)
+            self.update_shots_data(row, header, item, is_boolean=is_boolean)
 
 
         self.set_cell_changed_connection_enabled(True)
@@ -454,9 +458,9 @@ class MultiSubmitTableWindow(QtWidgets.QMainWindow):
                           is_boolean=False, 
                           is_int=False ):
         if is_locked:
-            self.revert_original_value(item, False)
+            self.revert_original_value(item)
             return
-        if is_boolean:
+        elif is_boolean:
             value = self.is_item_checked(item)
             self.set_item_text(item, "")
         elif is_int:
@@ -464,8 +468,9 @@ class MultiSubmitTableWindow(QtWidgets.QMainWindow):
             try:
                 value = int(float(text))
             except ValueError:
-                self.revert_original_value(item, False)
+                self.revert_original_value(item, is_int=True)
                 return
+
         else:
             value = self.get_item_text(item)
 
@@ -528,7 +533,7 @@ class MultiSubmitTableWindow(QtWidgets.QMainWindow):
         return "{0:.4f}".format(value)
     
     def int_to_string(self, value):
-        return int(value)
+        return str(value)
 
     def revert_original_value(self, item, is_boolean=False, is_int=False):
         original_value = self.get_item_value(item)
@@ -542,10 +547,10 @@ class MultiSubmitTableWindow(QtWidgets.QMainWindow):
 if __name__ == "__main__":
 
     try:
-        table_example_dialog.close() # pylint: disable=E0601
-        table_example_dialog.deleteLater() # pylint: disable=E0601
+        multi_submit_dialog.close() # pylint: disable=E0601
+        multi_submit_dialog.deleteLater() # pylint: disable=E0601
     except:
         pass
     
-    table_example_dialog = MultiSubmitTableWindow()
-    table_example_dialog.show()
+    multi_submit_dialog = MultiSubmitTableWindow()
+    multi_submit_dialog.show()

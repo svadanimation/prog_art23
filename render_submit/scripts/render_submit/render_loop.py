@@ -87,7 +87,8 @@ def render_shots(shots_data,
             if not ui.submit_in_progress:
                 cancel_sound()
                 break
-            ui.progress_bar_label.setText(f"Processing operation: {i} (of {len(active_shots)})")
+            current_file = os.path.basename(shot.get('file'))
+            ui.progress_bar_label.setText(f"{current_file}: {i} (of {len(active_shots)})")
             ui.progress_bar.setValue(i)
             time.sleep(0.5)
             QtCore.QCoreApplication.processEvents()
@@ -100,13 +101,19 @@ def render_shots(shots_data,
         
         open_scene(filepath)
 
-        # stub, this may change
+        res= shot.get('res')
+        height = None
+        width = None
+        ASPECT_RATIO = 1.7777777777777777
+        if res:
+            height = res
+            width = int(res*ASPECT_RATIO)
         vray_submit.apply_render_settings(
             # get the shot data
             cut_in = shot.get('cut_in'),
             cut_out = shot.get('cut_out'),
-            height = shot.get('height'),
-            width = shot.get('width'),
+            height = height,
+            width = width,
             filename = shot.get('filename'),
             outfile = shot.get('outfile'),
             step = shot.get('step')
@@ -114,7 +121,10 @@ def render_shots(shots_data,
 
         # audtion mode skips submitting and just checks the render loop
         if not audition:
-            vray_submit.vray_submit_jobs(make_movie=False)
+            make_movie = shot.get('movie')
+            project = shot.get('osx')
+            vray_submit.vray_submit_jobs(make_movie=bool(make_movie),
+                                         project=bool(project))
         
         progress_sound()
     
@@ -126,8 +136,12 @@ def render_shots(shots_data,
 
 def completion_sound():
     '''Play a sound when the loop is complete'''
-    for count in range(5):
-        winsound.Beep(440-count*100, 100-count*2)
+    # for count in range(5):
+    #     winsound.Beep(440-count*100, 100-count*2)
+    winsound.Beep(440, 500)
+    winsound.Beep(640, 500)
+    winsound.Beep(540, 300)
+    winsound.Beep(640, 1000)
 
 def progress_sound():
     '''Play a sound when the loop updates'''

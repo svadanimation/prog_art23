@@ -3,8 +3,10 @@
 
 '''
 import maya.cmds as mc # pylint: disable=import-error
-from render_submit import vray_submit
+import qb
 
+from render_submit import vray_submit
+from render_submit import constants
 
 class SubmitUI(object):
     '''
@@ -211,11 +213,40 @@ class SubmitUI(object):
         # pprint(self.jobs)
 
     def update_agenda(self):
-        range_keys = ['vray_job', 'package', 'range']
-        range = self.deep_get(self.jobs, range_keys)
-        start_frame, end_frame = range.split('-')
-        mc.setAttr("defaultRenderGlobals.startFrame", start_frame)
-        mc.getAttr("defaultRenderGlobals.endFrame", end_frame)
+        # this is so terrible, but we need to update the dict and cmd
+
+        vrscene = self.jobs['vray_job']['package']['-sceneFile']
+        frame_path = self.jobs['vray_job']['package']['-imgFile']
+        height = int(self.jobs['vray_job']['package']['-imgHeight'])
+        width = int(self.jobs['vray_job']['package']['-imgWidth'])
+
+        render_range = self.jobs['vray_job']['package']['range']
+        start_frame, end_frame = render_range.split('-')
+        mc.setAttr("defaultRenderGlobals.startFrame", int(start_frame))
+        mc.setAttr("defaultRenderGlobals.endFrame", int(end_frame))
+
+        # Rebuild agenda for vray job
+        agenda = qb.genframes(str(start_frame) + '-' + str(end_frame))
+        self.jobs['vray_job']['agenda'] = agenda
+
+        # so terrible
+        cmd = (
+        f'QB_CONVERT_PATH({constants.CONVERT_PATH})'
+        ' -frames=QB_FRAME_START-QB_FRAME_END,QB_FRAME_STEP'
+        ' -autoClose=1'
+        ' -verboseLevel=3'
+        f' -sceneFile="QB_CONVERT_PATH({str(vrscene)})"'
+        f' -imgWidth={width}'
+        f' -imgHeight={height}'
+        f' -imgFile="QB_CONVERT_PATH({str(frame_path)})"'
+        ' -showProgress=0'
+        ' -display=0'
+        )
+
+
+        self.jobs['vray_job']['package']['cmdline'] = cmd
+
+
         
         
 
@@ -226,11 +257,13 @@ class SubmitUI(object):
         # then overwite the new one with ui values
         self.jobs = vray_submit.get_jobs(make_movie=True)
         self.scrape_table()
+        self.update_agenda()
         self.remove()
         vray_submit.vray_submit_jobs(self.jobs)
 
     def submit(self,*args):
         self.scrape_table()
+        self.update_agenda()
         self.remove()
         vray_submit.vray_submit_jobs(self.jobs)
 
