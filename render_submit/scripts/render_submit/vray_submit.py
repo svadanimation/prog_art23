@@ -230,6 +230,13 @@ def query_render_settings():
     '''
     shot = {}
     shot['cut_in'] = mc.getAttr('defaultRenderGlobals.startFrame')
+    shot['cut_out'] = mc.getAttr('defaultRenderGlobals.endFrame')
+    shot['width'] = mc.getAttr("defaultResolution.width")
+    shot['height'] = mc.getAttr("defaultResolution.height")
+    shot['file_name'] = os.path.basename(mc.file(q=True, sn=True))
+    shot['out_file'] = mc.workspace(q=True, dir=True)
+    shot['step'] = mc.getAttr ('defaultRenderGlobals.byFrameStep')
+    shot['image_format'] = mc.getAttr("vraySettings.imageFormatStr")
 
     return shot
 
@@ -237,24 +244,27 @@ def apply_render_settings(  cut_in = 0,
                             cut_out = 1,
                             height = 720,
                             width = 1280,
-                            filename = 'image.#.png',
+                            filename = 'img.#',
                             outfile = 'Z:/render',
-                            step = 1):
-    '''
-    Apply render settings
-    '''
-    # for each of these items set the corresponding attribute on the settings node
-    # mc.setAttr("defaultRenderGlobals.startFrame", start_frame)
-    # mc.getAttr("defaultRenderGlobals.endFrame", end_frame)
-    # mc.workspace(fileRule=['images','D:'])
-    # mc.setAttr('vraySettings.fileNamePrefix', 'test.#', type='string')
-    # mc.setAttr("vraySettings.imageFormatStr", 1)
-    # mc.setAttr("defaultRenderGlobals.startFrame", 1)
-    # mc.setAttr("defaultRenderGlobals.endFrame", 1)
-    # setAttr "defaultRenderGlobals.byFrameStep" 5;
+                            step = 1,
+                            image_format = 'jpg',
+                            motion_blur = 0,
+                            viewport_subdivision = 1,
+                            maxSubdivs = 3):
+    mc.setAttr("defaultRenderGlobals.startFrame", cut_in)
+    mc.setAttr("defaultRenderGlobals.endFrame", cut_out)
+    mc.setAttr('vraySettings.fileNamePrefix', filename, type='string')
+    mc.setAttr("vraySettings.imageFormatStr",image_format, type='string')
+    mc.workspace(fileRule=['images',outfile])
+    mc.setAttr("vraySettings.height", height)
+    mc.setAttr("vraySettings.width", width)
+    mc.setAttr ("defaultRenderGlobals.byFrameStep", step)
+    mc.setAttr ("vraySettings.cam_mbOn", motion_blur)
+    mc.setAttr ("vraySettings.globopt_render_viewport_subdivision", viewport_subdivision)
+    mc.setAttr ("vraySettings.progressiveMaxSubdivs", maxSubdivs)
 
 
-    pass
+
 
 # test
 # apply_render_settings(
