@@ -21,5 +21,5 @@ def get_files(directory, file_types = ('*.ma', '*.mb')):
 # - filter the list down by substring
 # - sort the list by date
 
-if __name__ == '__main__': = 'Z:'
+if __name__ == '__main__':
     print(get_files(directory))
