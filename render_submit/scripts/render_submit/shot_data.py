@@ -4,8 +4,10 @@ This module contains the functions to get the shot data from the json file
 
 import json
 import os
-import maya.cmds as mc # pylint: disable=import-error
 from pprint import pprint
+
+import maya.cmds as mc # pylint: disable=import-error
+from render_submit import vray_submit
 
 appdata = os.getenv('APPDATA')
 recents_path = os.path.join(appdata, 'render_submit', 'recents.json')
@@ -33,6 +35,35 @@ SHOT_TEMPLATE_TYPE = {
                 'movie': 'bool',
                 'osx': 'bool'
                 }
+
+def query_scene_data():
+    '''Returns the scene data for the current scene
+    '''
+    # TODO build this based on the shot template
+    scene_data = SHOT_TEMPLATE.copy()
+    scene_data['file'] = mc.file(q=True, sn=True)
+    scene_data['cut_in'] = int(mc.playbackOptions(q=True, min=True))
+    scene_data['cut_out'] = int(mc.playbackOptions(q=True, max=True))
+    scene_data['res'] = int(mc.getAttr('defaultResolution.width'))
+    scene_data['step'] = int(mc.getAttr('defaultRenderGlobals.byFrameStep'))
+    
+    return scene_data
+
+def apply_scene_data(shot: dict):
+    '''Applies the shot data to the current scene
+    '''
+    # TODO build this based on the shot template
+    width, height = vray_submit.calculate_aspect_ratio(shot.get('res'))
+    vray_submit.apply_render_settings(
+                # get the shot data
+                cut_in = shot.get('cut_in'),
+                cut_out = shot.get('cut_out'),
+                height = height,
+                width = width,
+                filename = shot.get('filename'),
+                outfile = shot.get('outfile'),
+                step = shot.get('step')
+    )
 
 def validate_shot_data(shots_data):
     '''

@@ -2,6 +2,8 @@
 Open a series of shots and submit to farm
 
 Pass in optional ui class instance to update progress bar
+
+TODO: remove redundant apply shot data
 '''
 # builtins
 import winsound
@@ -17,6 +19,7 @@ import maya.cmds as mc # pylint: disable=import-error
 # internal
 from render_submit import vray_submit
 from render_submit import shot_data
+from render_submit import constants
 
 
 def open_scene(filepath):
@@ -93,12 +96,9 @@ def render_shots(shots_data,
         open_scene(filepath)
 
         res= shot.get('res')
-        height = None
-        width = None
-        ASPECT_RATIO = 1.7777777777777777
-        if res:
-            height = res
-            width = int(res*ASPECT_RATIO)
+        width, height = vray_submit.calculate_aspect_ratio(res)
+        # TODO: remove redundant apply shot data, make fn
+        # that applies based on template
         vray_submit.apply_render_settings(
             # get the shot data
             cut_in = shot.get('cut_in'),

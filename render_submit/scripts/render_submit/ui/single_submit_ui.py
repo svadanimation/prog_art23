@@ -28,10 +28,15 @@ class SubmitUI(object):
             ['vray_job', 'reservations'],
             ['vray_job', 'validate_fileMinSize']]
 
-    def __init__(self, jobs: dict = None):
+    def __init__(self, jobs: dict = None, osx: bool = False, editable: bool = False):
+        self.osx = osx
         self.jobs = jobs
         if not jobs:
-            self.jobs = vray_submit.get_jobs()
+            self.jobs = vray_submit.get_jobs(project=osx)
+            if not self.jobs:
+                mc.warning('No jobs to submit or cancelled by user')
+                return
+        self.editable = editable
         self.window = None
         self.form = None
         self.table = None
@@ -47,7 +52,7 @@ class SubmitUI(object):
 
     def show(self):
         '''Show the UI'''
-        mc.window(self.window, edit=True, sizeable=True, resizeToFitChildren=True)
+        mc.window(self.window, edit=True, sizeable=False, resizeToFitChildren=True)
         mc.showWindow( self.window )
 
     def remove(self, *args):
@@ -108,6 +113,7 @@ class SubmitUI(object):
     @staticmethod
     def edit_cell(row, column, value):
         '''Callback for when a cell is edited in the table'''
+        # print(f'row: {row}, column: {column}, value: {value}')
         return 1
 
     def validate_submit_dict(self):
@@ -119,12 +125,14 @@ class SubmitUI(object):
         # delete the old window if it exists
         self.remove()
 
-        self.window = mc.window(self.WINDOW, widthHeight=(400, 300))
+        self.window = mc.window(self.WINDOW, widthHeight=(766, 490), sizeable=False)
+
         self.form = mc.formLayout('submit_form')
         self.table = mc.scriptTable(rows=len(self.keys),
                             columns=2,
                             label=[(1,"Key"), (2,"Value")],
                             cellChangedCmd=self.edit_cell)
+        self.table = mc.scriptTable(self.table, edit=True, editable=self.editable)
         mc.scriptTable(self.table, cw = [1,250], edit=True)
         mc.scriptTable(self.table, cw = [2,500], edit=True)
 
@@ -148,6 +156,7 @@ class SubmitUI(object):
                         (self.movie_button, 'bottom', 0),
                         (self.cancel_button, 'bottom', 0),
                         (self.cancel_button, 'right', 0)],
+            # attachOppositeForm=[(self.table, 'left', 0)],
             attachControl=[(self.table, 'bottom', 0, self.ok_button),
                            (self.movie_button, 'left', 0, self.ok_button),
                         (self.movie_button, 'right', 0, self.cancel_button)],
@@ -241,6 +250,7 @@ class SubmitUI(object):
         f' -imgFile="QB_CONVERT_PATH({str(frame_path)})"'
         ' -showProgress=0'
         ' -display=0'
+        ' -region=none'
         )
 
 

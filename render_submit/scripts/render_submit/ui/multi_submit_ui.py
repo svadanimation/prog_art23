@@ -178,17 +178,21 @@ class MultiSubmitTableWindow(QtWidgets.QMainWindow):
             open_action = menu.addAction('Open')
             copy_action = menu.addAction('Copy Text')
             delete_action = menu.addAction('Delete Row')
+            query_action = menu.addAction('Query Current Scene')
+            apply_action = menu.addAction('Apply to Current Scene')
             action = menu.exec_(self.centralWidget().mapToGlobal(pos))
 
             if action == open_action:
                 # print('Open action triggered')
                 self.open_maya_file(row)
             elif action == copy_action:
-                # print('Copy action triggered')
                 self.copy_to_clipboard(item)
             elif action == delete_action:
-                # print('Delete action triggered')
                 self.delete_row(row)
+            elif action == query_action:
+                self.query_shot_data(row)
+            elif action == apply_action:
+                self.apply_shot_data(row)
 
     def copy_to_clipboard(self, item):
         clipboard = QtWidgets.QApplication.clipboard()
@@ -199,6 +203,20 @@ class MultiSubmitTableWindow(QtWidgets.QMainWindow):
         print(f'Opening Maya file: {maya_file}')
         render_loop.open_scene(maya_file)
         
+    def query_shot_data(self, row):
+        shot = shot_data.query_scene_data()
+        if shot:
+            self.shots_data[row] = shot
+            self.refresh_table()
+
+    def apply_shot_data(self, row):
+        shot = self.shots_data[row]
+        if shot:
+            shot_data.apply_scene_data(shot)
+            # protect against locked attrs or erros setting data
+            # pull the data back from the scene and update the table
+            self.query_shot_data(row)    
+
 
     def close_all(self):
         for widget in self.findChildren(QtWidgets.QWidget):
@@ -258,6 +276,7 @@ class MultiSubmitTableWindow(QtWidgets.QMainWindow):
     def print_table(self):
         print("Shot Data:")
         pprint(self.shots_data)
+
 
     def open_file(self):
         loadpath = mc.fileDialog2(fileMode=1, fileFilter="JSON (*.json)")

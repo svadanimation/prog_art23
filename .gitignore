@@ -2,6 +2,7 @@ workspace.code-workspace
 .vscode/settings.json
 debug.log
 git-sim_media
+.VSCodeCounter
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

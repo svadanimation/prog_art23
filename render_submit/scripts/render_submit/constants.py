@@ -2,8 +2,9 @@
 Constants for the render submitter
 '''
 import os
+import maya.cmds as mc # pylint: disable=import-error
 
-RELEASE = '2023'
+RELEASE = mc.about(version=True)
 VRAY_VERSION = 'vray/6'
 
 # Note! the osx versions of this are in the vray/bin/vray.sh file
@@ -24,6 +25,9 @@ TIMEOUT = '15000' # seconds
 CPUS = '50'
 PRIORITY = '4000'
 MIN_FILE_SIZE = '5000' # bytes
+
+
+ASPECT_RATIO = 1.7777777777777777
 
 # Needs to be a 12 bit srgb lut. It is tricky getting the correct export from nuke.
 # 3dl tables are assumed to have 12 bits of output (range 0...4095)
