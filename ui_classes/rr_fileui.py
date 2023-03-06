@@ -15,6 +15,7 @@ class TestUI():
     TITLE = "UI Window"
     DIMENSION = (500,500)
     TEXT = "Hello window!"
+
     def __init__(self):
         # Make sure window is singleton
         self.singleton_confirm()
@@ -26,17 +27,25 @@ class TestUI():
         self.window = mc.window(self.WINDOW_NAME)
         self.window_text = self.TEXT
 
+        # Window layout
+        mc.columnLayout()
+        mc.button('Button', command=self.print_text)
+
         # Displaying window
         self.open_window()
-        
+    
+    # Print text
+    def print_text(self, *args):
+        print(f"Here's your text: \n\n{self.window_text}")
+
     # Func to make sure window is singleton
-    def singleton_confirm(self, window_name):
+    def singleton_confirm(self):
         if mc.window(self.WINDOW_NAME, ex=True, q=True):
             mc.deleteUI(self.WINDOW_NAME)
 
     # Func to show the window
     def open_window(self):
-        if not mc.showWindow(self.WINDOW_NAME, ex=True, q=True):
+        if not mc.window(self.WINDOW_NAME, ex=True, q=True):
             mc.warning("Cannot show window that does not exist")
             return
         mc.showWindow(self.WINDOW_NAME)
