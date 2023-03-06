@@ -1,3 +1,4 @@
+# Imports
 import os
 import json
 from pprint import pprint
@@ -8,8 +9,8 @@ TEXT_FILE = 'text_file.txt'
 JSON_FILE = 'json_file.json'
 
 # Assigning dir to var
-txt_path = os.path.relpath(FILEPATH + TEXT_FILE)
-json_path = os.path.relpath(FILEPATH + JSON_FILE)
+txt_path = os.path.abspath(FILEPATH + TEXT_FILE)
+json_path = os.path.abspath(FILEPATH + JSON_FILE)
 
 # Setting text/data constants
 TEXT = "he110 w0r1d"
@@ -26,30 +27,24 @@ DATA = {
 def write_text(path, text):
     with open(path, 'w+') as f:
         f.write(text)
-        new_txt= f.read(path)
-    return new_txt
-    def read_text():
-        with open(txt_path, 'r') as f:
-            print(f'The file \'{TEXT_FILE}\' says: \n{f.read()}')
 
-    read_text()
+# Read txt file
+def read_text(path):
+    with open(txt_path, 'r') as f:
+        print(f'The file \'{path}\' says: \n{f.read()}')
 
+# Write input data to json file
 def write_data(path, data):
     with open(json_path, 'w') as f:
         json.dump(data, f)
 
-    def read_data():
-        with open(json_path, 'r') as f:
-            pprint(f.read())
-    
-    read_data()
+# Read json file
+def read_data(path):
+    with open(json_path, 'r') as f:
+        pprint(json.load(f))
 
 if __name__ == '__main__':
-    write_text(txt_path, TEXT)
-    write_data(json_path, DATA)
-
-'''
-
-    sep funcs, pass args 'what to append' and 'file' and return
-
-'''
+    write_txt = write_text(txt_path, TEXT)
+    read_txt = read_text(txt_path)
+    write_dat = write_data(json_path, DATA)
+    read_dat = read_data(json_path)
