@@ -14,7 +14,7 @@ text_path = os.path.join(DIRECTORY, TEXT_FILE)
 json_path = os.path.join(DIRECTORY, JSON_FILE)
 
 #Variables
-TEXT= 'abc123'
+TEXT = 'abc123'
 DATA = {
         'a': 1, 
         'b': 2, 
