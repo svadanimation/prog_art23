@@ -7,7 +7,7 @@ from importlib import reload
 
 # 
 mod_path = 'Z:/vs_code_svad/prog_art23/file_io'
-if not mod_path in sys.path:
+if mod_path not in sys.path:
     sys.path.append(mod_path)
 
 import np_file_io
