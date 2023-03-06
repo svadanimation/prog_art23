@@ -1,5 +1,5 @@
 # Objectives
-- Reinforce concepts of classes
+- Reinforce concepts of classes and working with self
 - Provide opportunity to study Qt/Maya widgets
 - Use super to overwrite class data
 
