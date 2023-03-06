@@ -31,6 +31,10 @@ from importlib import reload; reload(module)
 - Create an `if __name__ == '__main__:'` block for testing.
 
 ### Maya template
+https://youtu.be/UEf-d4CVv5c
+https://gist.github.com/JFlynnXYZ/9913813
+
+
 ```python
 import maya.cmds as mc # pylint: disable=import-error
 
@@ -61,6 +65,9 @@ the_window = TestUI()
 
 ### Qt template from Chris Zurbrigg 
 **get his training if you want to learn Qt**
+
+https://wiki.python.org/moin/PyQt/Tutorials
+
 ```python
 import sys
 
