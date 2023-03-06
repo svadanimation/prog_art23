@@ -1,27 +1,25 @@
 '''
 Open a series of shots and submit to farm
 
-There is an interesting decorator here:
-http://josbalcaen.com/maya-python-progress-decorator/
-Will probably pass in a class instance to the render loop instead of using a decorator
+Pass in optional ui class instance to update progress bar
 
-Ideally, we would like to have a progress bar that shows the progress of the
-render loop in the main ui window.
-
-probably makes sense to import this into a UI class that can update the progress window
-not sure how to properly interrupt the loop if the user cancels the progress window
-
+TODO: remove redundant apply shot data
 '''
 # builtins
 import winsound
 import os
-import json
+import time
+
+# qt
+from PySide2 import QtCore # pylint: disable=import-error
+from PySide2 import QtWidgets # pylint: disable=import-error
 
 import maya.cmds as mc # pylint: disable=import-error
 
 # internal
 from render_submit import vray_submit
 from render_submit import shot_data
+from render_submit import constants
 
 
 def open_scene(filepath):
@@ -39,7 +37,11 @@ def open_scene(filepath):
 
 # not sure how to yield the progress information
 # attempt to pass class instance in
-def render_shots(shots_data, progress=None, audition=False):
+def render_shots(shots_data, 
+                #  label=None,
+                #  progress=None, 
+                ui = None,
+                audition=False):
     '''Given a dictionary of shot data, open the scene and submit to farm
 
     :param shots_data: dictionary of shots data, defaults to None
@@ -59,29 +61,50 @@ def render_shots(shots_data, progress=None, audition=False):
     active_shots = [shot for shot in shots_data if shot.get('active')]
 
     # update progress bar if we have one
-    if progress:
-        progress.minValue=0
-        progress.maxValue=len(active_shots)
+    # use is instance to check if it's a QProgressBar
+    # if isinstance(progress, QtWidgets.QProgressBar):
+    if isinstance(ui, QtWidgets.QMainWindow):
+        if ui.submit_in_progress:
+            return
+        ui.progress_bar.setRange(0, len(active_shots))
+        ui.progress_bar_label.setText("Submit In Progress")
 
-    for shot in active_shots:
+        ui.submit_in_progress = True
+        ui.update_visibility()
+
+    for i, shot in enumerate(active_shots):
         
         # update the progress bar
-        if progress:
+        # if isinstance(progress, QtWidgets.QProgressBar):
+        if isinstance(ui, QtWidgets.QMainWindow):
             # check for interrupt
-            progres.progress_bar_label.setText(f"Processing operation: {i} (of {1})".format(i, number_of_operation))
-            progress.progress_bar.setValue(i)
-            progress.step()
+            if not ui.submit_in_progress:
+                cancel_sound()
+                break
+            current_file = os.path.basename(shot.get('file'))
+            ui.progress_bar_label.setText(f"{current_file}: {i} (of {len(active_shots)})")
+            ui.progress_bar.setValue(i)
+            time.sleep(0.5)
+            QtCore.QCoreApplication.processEvents()
 
         # this opens every scene
-        open_scene(shot.get('filepath'))
+        filepath = shot.get('file')
+        if not os.path.isfile(filepath):
+            mc.warning(f'Error opening file {filepath} does not exist. SKIPPING')
+            continue
+        
+        open_scene(filepath)
 
-        # stub, this may change
+        res= shot.get('res')
+        width, height = vray_submit.calculate_aspect_ratio(res)
+        # TODO: remove redundant apply shot data, make fn
+        # that applies based on template
         vray_submit.apply_render_settings(
             # get the shot data
             cut_in = shot.get('cut_in'),
             cut_out = shot.get('cut_out'),
-            height = shot.get('height'),
-            width = shot.get('width'),
+            height = height,
+            width = width,
             filename = shot.get('filename'),
             outfile = shot.get('outfile'),
             step = shot.get('step')
@@ -89,19 +112,39 @@ def render_shots(shots_data, progress=None, audition=False):
 
         # audtion mode skips submitting and just checks the render loop
         if not audition:
-            vray_submit.vray_submit_jobs(make_movie=False)
-
-
+            make_movie = shot.get('movie')
+            project = shot.get('osx')
+            vray_submit.vray_submit_jobs(make_movie=bool(make_movie),
+                                         project=bool(project))
+        
+        progress_sound()
+    
+    if isinstance(ui, QtWidgets.QMainWindow):
+        ui.submit_in_progress = False
+        ui.update_visibility()
     # play a sound when the loop is complete
     completion_sound()
 
 def completion_sound():
     '''Play a sound when the loop is complete'''
-    for count in range(5):
-        winsound.Beep(440-count*100, 100-count*2)
+    # for count in range(5):
+    #     winsound.Beep(440-count*100, 100-count*2)
+    winsound.Beep(440, 500)
+    winsound.Beep(640, 500)
+    winsound.Beep(540, 300)
+    winsound.Beep(640, 1000)
+
+def progress_sound():
+    '''Play a sound when the loop updates'''
+    winsound.Beep(440, 100)
+
+def cancel_sound():
+    '''Play a sound when the loop updates'''
+    winsound.Beep(100, 500)
+    winsound.Beep(80, 1000)
 
 if __name__ == "__main__":
     # get the shot data
-    shots_data = shot_data.get_shot_data(r'Z:/vs_code_svad/prog_art23/render_submit/test/test_shot_data.json')
+    shots_data = shot_data.load_shot_data(r'Z:/vs_code_svad/prog_art23/render_submit/test/test_shot_data.json')
     render_shots(shots_data, audition=True)
     

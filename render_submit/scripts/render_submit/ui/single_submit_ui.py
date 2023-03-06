@@ -3,8 +3,10 @@
 
 '''
 import maya.cmds as mc # pylint: disable=import-error
-from render_submit import vray_submit
+import qb
 
+from render_submit import vray_submit
+from render_submit import constants
 
 class SubmitUI(object):
     '''
@@ -26,10 +28,15 @@ class SubmitUI(object):
             ['vray_job', 'reservations'],
             ['vray_job', 'validate_fileMinSize']]
 
-    def __init__(self, jobs: dict = None):
+    def __init__(self, jobs: dict = None, osx: bool = False, editable: bool = False):
+        self.osx = osx
         self.jobs = jobs
         if not jobs:
-            self.jobs = vray_submit.get_jobs()
+            self.jobs = vray_submit.get_jobs(project=osx)
+            if not self.jobs:
+                mc.warning('No jobs to submit or cancelled by user')
+                return
+        self.editable = editable
         self.window = None
         self.form = None
         self.table = None
@@ -45,7 +52,7 @@ class SubmitUI(object):
 
     def show(self):
         '''Show the UI'''
-        mc.window(self.window, edit=True, sizeable=True, resizeToFitChildren=True)
+        mc.window(self.window, edit=True, sizeable=False, resizeToFitChildren=True)
         mc.showWindow( self.window )
 
     def remove(self, *args):
@@ -106,6 +113,7 @@ class SubmitUI(object):
     @staticmethod
     def edit_cell(row, column, value):
         '''Callback for when a cell is edited in the table'''
+        # print(f'row: {row}, column: {column}, value: {value}')
         return 1
 
     def validate_submit_dict(self):
@@ -117,12 +125,14 @@ class SubmitUI(object):
         # delete the old window if it exists
         self.remove()
 
-        self.window = mc.window(self.WINDOW, widthHeight=(400, 300))
+        self.window = mc.window(self.WINDOW, widthHeight=(766, 490), sizeable=False)
+
         self.form = mc.formLayout('submit_form')
         self.table = mc.scriptTable(rows=len(self.keys),
                             columns=2,
                             label=[(1,"Key"), (2,"Value")],
                             cellChangedCmd=self.edit_cell)
+        self.table = mc.scriptTable(self.table, edit=True, editable=self.editable)
         mc.scriptTable(self.table, cw = [1,250], edit=True)
         mc.scriptTable(self.table, cw = [2,500], edit=True)
 
@@ -146,6 +156,7 @@ class SubmitUI(object):
                         (self.movie_button, 'bottom', 0),
                         (self.cancel_button, 'bottom', 0),
                         (self.cancel_button, 'right', 0)],
+            # attachOppositeForm=[(self.table, 'left', 0)],
             attachControl=[(self.table, 'bottom', 0, self.ok_button),
                            (self.movie_button, 'left', 0, self.ok_button),
                         (self.movie_button, 'right', 0, self.cancel_button)],
@@ -211,11 +222,41 @@ class SubmitUI(object):
         # pprint(self.jobs)
 
     def update_agenda(self):
-        range_keys = ['vray_job', 'package', 'range']
-        range = self.deep_get(self.jobs, range_keys)
-        start_frame, end_frame = range.split('-')
-        mc.setAttr("defaultRenderGlobals.startFrame", start_frame)
-        mc.getAttr("defaultRenderGlobals.endFrame", end_frame)
+        # this is so terrible, but we need to update the dict and cmd
+
+        vrscene = self.jobs['vray_job']['package']['-sceneFile']
+        frame_path = self.jobs['vray_job']['package']['-imgFile']
+        height = int(self.jobs['vray_job']['package']['-imgHeight'])
+        width = int(self.jobs['vray_job']['package']['-imgWidth'])
+
+        render_range = self.jobs['vray_job']['package']['range']
+        start_frame, end_frame = render_range.split('-')
+        mc.setAttr("defaultRenderGlobals.startFrame", int(start_frame))
+        mc.setAttr("defaultRenderGlobals.endFrame", int(end_frame))
+
+        # Rebuild agenda for vray job
+        agenda = qb.genframes(str(start_frame) + '-' + str(end_frame))
+        self.jobs['vray_job']['agenda'] = agenda
+
+        # so terrible
+        cmd = (
+        f'QB_CONVERT_PATH({constants.CONVERT_PATH})'
+        ' -frames=QB_FRAME_START-QB_FRAME_END,QB_FRAME_STEP'
+        ' -autoClose=1'
+        ' -verboseLevel=3'
+        f' -sceneFile="QB_CONVERT_PATH({str(vrscene)})"'
+        f' -imgWidth={width}'
+        f' -imgHeight={height}'
+        f' -imgFile="QB_CONVERT_PATH({str(frame_path)})"'
+        ' -showProgress=0'
+        ' -display=0'
+        ' -region=none'
+        )
+
+
+        self.jobs['vray_job']['package']['cmdline'] = cmd
+
+
         
         
 
@@ -226,11 +267,13 @@ class SubmitUI(object):
         # then overwite the new one with ui values
         self.jobs = vray_submit.get_jobs(make_movie=True)
         self.scrape_table()
+        self.update_agenda()
         self.remove()
         vray_submit.vray_submit_jobs(self.jobs)
 
     def submit(self,*args):
         self.scrape_table()
+        self.update_agenda()
         self.remove()
         vray_submit.vray_submit_jobs(self.jobs)
 

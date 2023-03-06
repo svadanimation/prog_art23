@@ -24,7 +24,7 @@
       "cut_out": "10",
       "file": "Z:/test_scene.ma",
       "outfile": "Z:/render/test_scene_two.#.png",
-      "res": ["1280","720"],
+      "res": "1280",
       "step": "1",
       "active": "false"
     }]

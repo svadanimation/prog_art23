@@ -4,11 +4,66 @@ This module contains the functions to get the shot data from the json file
 
 import json
 import os
+from pprint import pprint
+
 import maya.cmds as mc # pylint: disable=import-error
-import pprint
+from render_submit import vray_submit
 
 appdata = os.getenv('APPDATA')
 recents_path = os.path.join(appdata, 'render_submit', 'recents.json')
+
+SHOT_TEMPLATE = {
+                'active': True,
+                'file': '',
+                'note': '',
+                'cut_in': '',
+                'cut_out': '',
+                'res': '',
+                'step': '',
+                'movie': True, 
+                'osx': False 
+                }
+
+SHOT_TEMPLATE_TYPE = {
+                'active': 'bool',
+                'file': 'str',
+                'note': 'str',
+                'cut_in': 'int',
+                'cut_out': 'int',
+                'res': 'int',
+                'step': 'int',
+                'movie': 'bool',
+                'osx': 'bool'
+                }
+
+def query_scene_data():
+    '''Returns the scene data for the current scene
+    '''
+    # TODO build this based on the shot template
+    scene_data = SHOT_TEMPLATE.copy()
+    scene_data['file'] = mc.file(q=True, sn=True)
+    scene_data['cut_in'] = int(mc.playbackOptions(q=True, min=True))
+    scene_data['cut_out'] = int(mc.playbackOptions(q=True, max=True))
+    scene_data['res'] = int(mc.getAttr('defaultResolution.width'))
+    scene_data['step'] = int(mc.getAttr('defaultRenderGlobals.byFrameStep'))
+    
+    return scene_data
+
+def apply_scene_data(shot: dict):
+    '''Applies the shot data to the current scene
+    '''
+    # TODO build this based on the shot template
+    width, height = vray_submit.calculate_aspect_ratio(shot.get('res'))
+    vray_submit.apply_render_settings(
+                # get the shot data
+                cut_in = shot.get('cut_in'),
+                cut_out = shot.get('cut_out'),
+                height = height,
+                width = width,
+                filename = shot.get('filename'),
+                outfile = shot.get('outfile'),
+                step = shot.get('step')
+    )
 
 def validate_shot_data(shots_data):
     '''
@@ -16,20 +71,65 @@ def validate_shot_data(shots_data):
     '''
     # if the shot data doesn't have the correct keys, throw it away
     # consider other cleanup if it is close
-    return True
+    if isinstance(shots_data, list):
+        for shot in shots_data:
+            if not isinstance(shot, dict):
+                mc.warning('Shot is not a dictionary')
+                return False
+            for key in SHOT_TEMPLATE:
+                if key not in shot:
+                    mc.warning(f'Shot data is missing key: {key}')
+                    return False
+        return True
+    else:
+        mc.warning('Shots data is not a list')
+        return False
 
-def add_shot():
-    pass
+def reorder_shots(shots_data, new_order):
+    '''Reorders the shot data'''
+    shot_list = {shots_data[id] for id in shots_data if id in shots_data}
+    return shot_list
 
-def remove_shot():
-    pass
+def replace_shot(shots_data, id, replacement):
+    shots_data[id] = replacement
 
-def reorder_list(item_list: list, old_order: list, new_order:list):
-    '''Given a list, and an order, and new order, reorder'''
-    pass
+def insert_shot(shots_data, filepath, id=None):
+    '''Inserts a shot into the shot data
+    '''
+    shot = SHOT_TEMPLATE.copy()
+    shot['file'] = filepath
+    if id is None:
+        shots_data.append(shot)
+    else:
+        shots_data.insert(id, shot)
+
+    return shots_data
+
+def shot_exists(shots_data, filepath):
+    '''Checks if a shot already exists in the shot data
+    '''
+    for shot in shots_data:
+        if shot['file'] == filepath:
+            return True
+    return False
+
+def remove_shot(shots_data, filepath=None, id=None):
+    '''Removes a shot from the shot data
+    '''
+    if filepath:
+        for shot in shots_data:
+            if shot['file'] == filepath:
+                shots_data.remove(shot)
+                return shots_data
+    if id:
+        shots_data.pop(id)
+        return shots_data
     
+    mc.warning('No shot found to remove')
+    return shots_data
 
-def get_shot_data(filepath):
+
+def load_shot_data(filepath):
     '''
     This function is called by the UI to get the shot data
     '''
@@ -39,7 +139,18 @@ def get_shot_data(filepath):
         return None
 
     with open(filepath, 'r', encoding='ascii') as f:
-        shots_data = json.load(f)
+        try:
+            shots_data = json.load(f)
+        except json.JSONDecodeError as err:
+            print(f'Unable to load file: {err.doc} \n'
+                f'Pos: {err.pos} '
+                f'Line: {err.lineno} '
+                f'Column: {err.colno} ')
+            mc.confirmDialog(title='Error',
+                             message=f'Unable to load file: {filepath}',
+                             button=['OK'], defaultButton='OK', 
+                             cancelButton='OK', dismissString='OK')
+            return None
 
     if validate_shot_data(shots_data):
         return shots_data
@@ -48,14 +159,20 @@ def save_shot_data(filepath, shots_data):
     '''
     This function is called by the UI to save the shot data
     '''
-    # validate the file path
-    if not os.path.isfile(filepath):
-        mc.warning(f'File not found: {filepath}')
+    # validate the path
+    if not os.path.isdir(os.path.dirname(filepath)):
+        mc.warning(f'Directory not found: {filepath}')
         return None
+  
     with open(filepath, 'w', encoding='ascii') as f:
-        pass
-        # avoid overwriting the file for now
-        # json.dump(shots_data, f, indent=4)
+        try:
+            json.dump(shots_data, f, indent=4)
+        except ValueError as err:
+            mc.confirmDialog(title='Error',
+                             message=f'Unable to save file: {filepath} \n {err}',
+                             button=['OK'], defaultButton='OK', 
+                             cancelButton='OK', dismissString='OK')
+            return None
 
 def save_recent_data(recent_files):
     '''
@@ -92,32 +209,16 @@ def build_directory(filepath: str):
             print(f'Created directory: {dirpath}')
             return True
     else:
-        print(f'Directory exists: {dirpath}')
+        # print(f'Directory exists: {dirpath}')
         return True
     
-'''
-This module contains the functions to get the shot data from the json file
-'''
-
-# grabbing shot data
-test_shot_path = 'Z:\\VSCODE\\prog_art23\\render_submit\\test\\test_shot_data.json'
-def get_shot_data(filepath):
-    '''
-    This function is called by the UI to get the shot data
-    '''
-    # validate the file path
-    if not os.path.isfile(filepath):
-        mc.warning(f'File not found: {filepath}')
-        return None
-
-    with open(filepath, 'r', encoding='ascii') as f:
-        shots_data = json.load(f)
-
-    return shots_data
+if __name__ == '__main__':
+    test_shot_path = 'Z:\\VSCODE\\prog_art23\\render_submit\\test\\test_shot_data.json'
+    pprint(load_shot_data(test_shot_path))
 
 
 # Class to make changes to change keys and pairs within any subdict of a given key
-class FileEditor:
+class FileEditor():
     def __init__(self, file_info=None, file=None):
 
         if file_info:
@@ -126,33 +227,36 @@ class FileEditor:
             with open(file) as file:
                 self.shot_list = json.load(file)
         else:
-            self.shot_list = {}
+            self.shot_list = []
 
-        self.shot_list_format = {   "note" : None,
-                                    "cut_in" : None,
-                                    "cut_out" : None,
-                                    "infile" : None,
-                                    "outfile" : None,
-                                    "res" : None,
-                                    "step" : None,
-                                    "active" : None     }
+        self.id_format = {  "note" : None,
+                            "cut_in" : None,
+                            "cut_out" : None,
+                            "infile" : None,
+                            "outfile" : None,
+                            "res" : None,
+                            "step" : None,
+                            "active" : None     }
 
     def update_file(self, file):
         with open(file, 'w') as file:
             json.dump(self.shot_list, file)
 
-    def add_shot(self, id=None, name=None, start_frame=None, end_frame=None, in_path=None, out_path=None, resolution=["720", "1280"], step=1, active=False):
-        input_data = (name, start_frame, end_frame, in_path, out_path, resolution, step, active)
-        edited_format = self.shot_list_format
+    def add_shot(self, name=None, start_frame=None, end_frame=None, in_path=None, out_path=None, resolution=["720", "1280"], step=1, active=False):
+        input_data = [name, start_frame, end_frame, in_path, out_path, resolution, step, active]
+        edited_format = self.id_format
 
-        for data in input_data:
-            for id in self.shot_list_format:
-                edited_format[]
+        if id in self.shot_list:
+            # mc.warning("This shot already exists. Select a different shot or rename shot")
+            return
+        
+        for data in edited_format:
+            edited_format[data] = input_data[list(edited_format).index(data)]
+        self.shot_list.append(edited_format)
         return self.shot_list
 
-    def remove_shot(self, id):
-        if id in self.shot_list:
-            del self.shot_list[id]
+    def remove_shot(self, id=None):
+        self.shot_list.pop()
         return self.shot_list
 
     def rearrange_shot(self, order=[]):
@@ -164,5 +268,21 @@ class FileEditor:
             self.shot_list = {id:self.shot_list[id] for id in order if id in order}
         return self.shot_list
 
-    def replace_shot(self, id, replacement_id{}):
+    def replace_shot(self, id, replacement_id={}):
         self.shot_list[id] = replacement_id
+
+'''
+
+TESTING:
+
+test_path = get_shot_data(test_shot_path)
+test_editor = FileEditor(file_info=test_path)
+pprint(test_editor.shot_list, sort_dicts=False)
+
+test_editor.add_shot(name="test_name_two", start_frame="0", end_frame="100", in_path="test_in", out_path="test_out")
+pprint(test_editor.shot_list, sort_dicts=False)
+
+test_editor.remove_shot(-1)
+pprint(test_editor.shot_list, sort_dicts=False)
+
+'''

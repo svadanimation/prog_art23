@@ -18,7 +18,13 @@ from render_submit import constants
 from render_submit import render_utils
 from render_submit import vray_mash
 
-
+def calculate_aspect_ratio(res):
+    width = None
+    height = None
+    if res:
+        width = int(res*constants.ASPECT_RATIO)
+        height = res
+    return width, height
 
 def get_jobs(make_movie=False, project=False, high_memory=0):
     '''
@@ -29,10 +35,26 @@ def get_jobs(make_movie=False, project=False, high_memory=0):
     #initial name check
     scene_file = mc.file(q=True, sn=True)
     if len(scene_file) <= 0:
+        prompt = mc.confirmDialog(title='Save File', 
+                         message='Save file before submitting render!', 
+                         button=['OK','Cancel'],
+                         defaultButton='OK',
+                         cancelButton='Cancel',
+                         dismissString='Cancel')
         mc.warning('Save file before submitting render!')
-        mel.eval("SaveSceneAs")
+        if prompt == 'OK':
+            mel.eval("SaveSceneAs")
+            # double check that the file is saved
+            scene_file = mc.file(q=True, sn=True)
+            if len(scene_file) <= 0:
+                mc.warning('File not saved')
+                return
+        else:
+            mc.warning('Canceled render submission')
+            return
     if scene_file.startswith(constants.OMIT_DRIVES):
-        mc.error('File must be on a network share')
+        mc.warning('File must be on a network share')
+        return
 
     # reconstruct shot name
     shot_name_tokens = os.path.basename(scene_file).split('.')
@@ -110,8 +132,8 @@ def get_jobs(make_movie=False, project=False, high_memory=0):
     package = {}
     package['submitType'] = 'vray_cmdline'
     package['-imgFile'] = frame_path
-    package['-imgHeight'] = width
-    package['-imgWidth'] = height
+    package['-imgHeight'] = height
+    package['-imgWidth'] = width
     package['-sceneFile'] = str(vrscene)
     package['-showProgress'] = '0'
     package['-verboseLevel'] = '3'
@@ -130,6 +152,7 @@ def get_jobs(make_movie=False, project=False, high_memory=0):
         f' -imgFile="QB_CONVERT_PATH({str(frame_path)})"'
         ' -showProgress=0'
         ' -display=0'
+        ' -region=none'
     )
 
     # the basic format for submission
@@ -224,6 +247,29 @@ def get_jobs(make_movie=False, project=False, high_memory=0):
     return jobs
 
 
+def apply_render_settings(  cut_in = None, 
+                            cut_out = None,
+                            height = None,
+                            width = None,
+                            filename = None,
+                            outfile = None,
+                            step = None,
+                            image_format = None,
+                            motion_blur = None,
+                            viewport_subdivision = None,
+                            max_subdivs = None):
+    if cut_in: mc.setAttr("defaultRenderGlobals.startFrame", cut_in)
+    if cut_out: mc.setAttr("defaultRenderGlobals.endFrame", cut_out)
+    if filename: mc.setAttr('vraySettings.fileNamePrefix', filename, type='string')
+    if image_format: mc.setAttr("vraySettings.imageFormatStr",image_format, type='string')
+    if outfile: mc.workspace(fileRule=['images',outfile])
+    if height: mc.setAttr("vraySettings.height", height)
+    if width: mc.setAttr("vraySettings.width", width)
+    if step: mc.setAttr ("defaultRenderGlobals.byFrameStep", step)
+    if motion_blur: mc.setAttr ("vraySettings.cam_mbOn", motion_blur)
+    if viewport_subdivision: mc.setAttr ("vraySettings.globopt_render_viewport_subdivision", viewport_subdivision)
+    if max_subdivs: mc.setAttr ("vraySettings.progressiveMaxSubdivs", max_subdivs)
+
 def vray_submit_jobs(jobs = None,
                     make_movie=False,
                     project=False,
@@ -239,6 +285,9 @@ def vray_submit_jobs(jobs = None,
     #fill the dictionary
     if not jobs:
         jobs = get_jobs(make_movie=make_movie, project=project)
+        if not jobs:
+            mc.warning('No jobs to submit, file not saved or cancelled by user')
+            return
 
     vray_standalone_post(jobs, show_ui=show_ui)
 
@@ -268,17 +317,11 @@ def vray_standalone_post(jobs, show_ui=True):
     '''
     vrscene = jobs['vray_job']['package']['-sceneFile']
     render_path = jobs['vray_job']['renderpath']
+    height = int(jobs['vray_job']['package']['-imgHeight'])
+    width = int(jobs['vray_job']['package']['-imgWidth'])
+
+
     project = False
-
-    # range = jobs['vray_job']['package']['range']
-    # start_frame, end_frame = range.split('-')
-    # mc.setAttr("defaultRenderGlobals.startFrame", start_frame)
-    # mc.getAttr("defaultRenderGlobals.endFrame", end_frame)
-
-    # Build agenda for vray job
-    # agenda = qb.genframes(str(start_frame) + '-' + str(end_frame))
-    # jobs['vray_job']['agenda'] = agenda
-
     try:
         #if there is an agenda, is an API job
         if  jobs['vray_job']['project']:
@@ -337,6 +380,8 @@ def vray_standalone_post(jobs, show_ui=True):
                 values = True,
                 ksc=True)
 
+    mc.setAttr("vraySettings_qubeExport.height", height)
+    mc.setAttr("vraySettings_qubeExport.width", width)
     mc.setAttr("vraySettings_qubeExport.animType", 1)
     mc.setAttr("vraySettings_qubeExport.vrscene_render_on", 0)
     mc.setAttr("vraySettings_qubeExport.vrscene_on", 1)

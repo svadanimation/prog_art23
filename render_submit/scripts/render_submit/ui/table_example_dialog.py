@@ -6,7 +6,7 @@ from shiboken2 import wrapInstance
 
 import maya.OpenMaya as om
 import maya.OpenMayaUI as omui
-import maya.cmds as cmds
+import maya.cmds as mc
 
 
 def maya_main_window():
@@ -89,11 +89,11 @@ class TableExampleDialog(QtWidgets.QDialog):
 
         self.table_wdg.setRowCount(0)
 
-        meshes = cmds.ls(type="mesh")
+        meshes = mc.ls(type="mesh")
         for i in range(len(meshes)):
-            transform_name = cmds.listRelatives(meshes[i], parent=True)[0]
-            translation = cmds.getAttr("{0}.translate".format(transform_name))[0]
-            visible = cmds.getAttr("{0}.visibility".format(transform_name))
+            transform_name = mc.listRelatives(meshes[i], parent=True)[0]
+            translation = mc.getAttr("{0}.translate".format(transform_name))[0]
+            visible = mc.getAttr("{0}.visibility".format(transform_name))
 
             self.table_wdg.insertRow(i)
             self.insert_item(i, 0, "", "visibility", visible, True)
@@ -188,6 +188,7 @@ class TableExampleDialog(QtWidgets.QDialog):
 
     def set_item_value(self, item, value):
         item.setData(self.VALUE_ROLE, value)
+        
 
     def get_item_value(self, item):
         return item.data(self.VALUE_ROLE)
