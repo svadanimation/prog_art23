@@ -3,7 +3,7 @@ from pprint import pprint
 from importlib import reload
 import maya.cmds as mc
 
-mod_path = "Z:/Classes/W23/Programming for Artists/VS Code Workspace/prog_art23/file_io"
+mod_path = 'Z:/Classes/W23/Programming for Artists/VS Code Workspace/prog_art23/file_io'
 if mod_path not in sys.path:
     sys.path.append(mod_path)
 
@@ -26,12 +26,12 @@ class FileIO_ui():
                                                   command = self.update_scroll_field)
         self.text_scroll_field = mc.scrollField(editable = False,
                                                 wordWrap = True, 
-                                                text = 'Default text')
+                                                text = 'Please input file path')
         self.show()
 
     def update_scroll_field(self, *args):
 
-        result = mc.fileDialog2(fileFilter = '*.text', dialogStyle = 2)
+        result = mc.fileDialog2(fileFilter = '*.txt', dialogStyle = 2)
         if not result:
             return
         self.filepath = result[0]
@@ -45,6 +45,7 @@ class FileIO_ui():
         if not self.filepath:
             mc.warning('No file given')
             return
+        np_file_io.rw_text(self.filepath, content = self.text)
 
     def show(self):
         if mc.window(self.WINDOW_NAME, query = True, exists = True):
