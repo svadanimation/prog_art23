@@ -22,11 +22,13 @@ class FileIO_ui():
         self.layout = mc.columnLayout(columnAttach = ('both', 5),
                                       rowSpacing = 10,
                                       columnWidth = 250)
-        self.update_text_scroll_field = mc.button(label = "Load text file",
-                                                  command = self.update_scroll_field)
         self.text_scroll_field = mc.scrollField(editable = False,
                                                 wordWrap = True, 
                                                 text = 'Please input file path')
+        self.update_text_scroll_field = mc.button(label = "Load text file",
+                                                  command = self.update_scroll_field)
+        self.save_text_file = mc.button(label = "Save text file", 
+                                        command = self.save_file)
         self.show()
 
     def update_scroll_field(self, *args):
@@ -41,7 +43,7 @@ class FileIO_ui():
                        edit = True,
                        text = self.filepath)
 
-    def save_file(self):
+    def save_file(self, *args):
         if not self.filepath:
             mc.warning('No file given')
             return
