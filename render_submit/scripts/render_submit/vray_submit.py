@@ -354,12 +354,13 @@ def vray_standalone_post(jobs, show_ui=True):
     # only the original vraySettings node is supported for post translation
     orig_post_translate_py = mc.getAttr('vraySettings.postTranslatePython')
     post_translate_py = (
-        'from render_submit import vray_pathTranslate\n'
+        'from render_submit import vray_path_translate\n'
         'from importlib import reload\n'
-        'reload(vray_pathTranslate)\n'
-        'vray_pathTranslate.findAndProcessPaths()\n'
+        'reload(vray_path_translate)\n'
+        'vray_path_translate.find_and_process_paths()\n'
     )
-    if project:
+    # if project:
+    if True:
         # add the post translate script to whatever might already be there
         # we have to do this because the vraySettings node doesn't support the post translate python
         mc.setAttr('vraySettings.postTranslatePython',

@@ -3,16 +3,16 @@ from pprint import pprint
 from importlib import reload
 import maya.cmds as mc
 
-mod_path = 'Z:/Kaleb-Animation_23\winter_23/programming_4_artists/prog_art23/prog_art23/file_io'
-if mod_path not in sys.path:
-    sys.path.append(mod_path)
+# mod_path = 'Z:/Kaleb-Animation_23\winter_23/programming_4_artists/prog_art23/prog_art23/file_io'
+# if mod_path not in sys.path:
+#     sys.path.append(mod_path)
 
-import kr_file_io
-reload (kr_file_io)
+# import kr_file_io
+# reload (kr_file_io)
 
 class FileIo_UI():
 
-    MY_WINDOW = 'fileUI_window'
+    MY_WINDOW = 'fileUI_window' 
 
     def __init__(self, text=None):
         self.text = text
@@ -24,16 +24,41 @@ class FileIo_UI():
                                       columnWidth=250)
 
         self.spacer = mc.separator(height = 10)
-        self.button = mc.button(label='Load Text File', command = self.update_scroll_field)
+        self.update_scrollField = mc.button(label='Load Text File', command = self.update_scroll_field)
         self.spacer = mc.separator(height = 10)
-        self.text_scroll_field = mc.scrollField( editable=True, 
+        self.text_scrollField = mc.scrollField('my_scroll_field', editable=True, 
                                              wordWrap=True, 
-                                             text='Editable with word wrap' )
+                                             text='Load a Text File and Edit It Here!' )
+        self.spacer = mc.separator(height = 10)
+        self.overWrite_text_file = mc.button(label='Overwrite Text File', command = self.overWrite_text_file)
+        self.spacer = mc.separator(height = 10)
 
         self.show()
     
     def update_scroll_field(self, *args):
-        print(f'this is what you wrote: \n\n {self.text}')
+
+        result = mc.fileDialog2(fileFilter='*.txt', fileMode=1)
+        if not result:
+            return
+        else:
+            with open(result[0], 'r') as f:
+                contents = f.read()
+                if contents:
+                    mc.scrollField('my_scroll_field', 
+                                   edit=True, 
+                                   text=contents)
+    
+    def overWrite_text_file(self, *args):
+
+        scrollField_contents = mc.scrollField('my_scroll_field', 
+                                              query = True, 
+                                              text=True)
+        file = mc.fileDialog2(fileFilter='*.txt', fileMode=1)
+        if not file:
+            return
+        else:
+            with open (file[0], 'w') as f:
+                f.write(scrollField_contents)
 
     def show(self):
         if mc.window(self.MY_WINDOW, q = True, exists = True):
