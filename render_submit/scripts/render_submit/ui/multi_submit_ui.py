@@ -462,7 +462,9 @@ class MultiSubmitTableWindow(QtWidgets.QMainWindow):
             self.update_shots_data(row, header, item, is_int=True)
         else:
             # TODO get the data types from the shot_data module
-            is_boolean = column == 0 or column <= self.count-1
+            if column == 0 or column >= self.count -1:
+                is_boolean = True
+            # is_boolean = column == 0 or column >= self.count-1
             # self.update_attr(self.get_full_attr_name(row, item), item, is_boolean)
             
             # get the key/header from the item

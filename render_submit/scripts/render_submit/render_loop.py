@@ -114,6 +114,7 @@ def render_shots(shots_data,
         if not audition:
             make_movie = shot.get('movie')
             project = shot.get('osx')
+            print(f'osx/project ================= {project}')
             vray_submit.vray_submit_jobs(make_movie=bool(make_movie),
                                          project=bool(project))
         
