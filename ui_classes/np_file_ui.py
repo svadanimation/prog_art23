@@ -38,10 +38,12 @@ class FileIO_ui():
             return
         self.filepath = result[0]
 
+        self.text = np_file_io.rw_text(self.filepath, content = None)
+
         print(f'This is what you wrote: \n\n {self.text}')
         mc.scrollField(self.text_scroll_field,
                        edit = True,
-                       text = self.filepath)
+                       text = self.text)
 
     def save_file(self, *args):
         if not self.filepath:
