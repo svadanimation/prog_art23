@@ -25,16 +25,16 @@ def write_txt(path, text):
     with open(path, 'w') as f:
         f.write(text)
 def read_txt(path):
-    txt = ''
-    digits = []
+    # txt = ''
+    # digits = []
     with open (path, 'r') as f:
-        text = f.read()
-        for char in text:
-            if char.isdigit():
-                digits.append(int(char))
-            else:
-                txt += char
-    return(txt, digits)
+        f.read()
+        # for char in text:
+        #     if char.isdigit():
+        #         digits.append(int(char))
+        #     else:
+        #         txt += char
+    # return(txt)
 
 def write_dict(path, data):
     with open(path, 'w') as g:
