@@ -28,13 +28,13 @@ def read_txt(path):
     # txt = ''
     # digits = []
     with open (path, 'r') as f:
-        f.read()
+       txt = f.read()
         # for char in text:
         #     if char.isdigit():
         #         digits.append(int(char))
         #     else:
         #         txt += char
-    # return(txt)
+    return(txt)
 
 def write_dict(path, data):
     with open(path, 'w') as g:

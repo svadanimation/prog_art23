@@ -21,11 +21,6 @@ with open('filepath', 'w') as f:
 with open('filepath', 'r') as f:
     content = f.read()
 
-name = 'main'
-if name == 'main':
-    print("Always executed")
-else:
-    print("Executed when imported")
-
-
-AKM2_file_io.py
+__name__ = '__main__'
+if __name__ == '__main__':
+    am_main.py()
