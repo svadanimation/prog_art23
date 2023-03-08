@@ -59,11 +59,13 @@ class TestUI():
         self.text_from_file = rr.read_text(self.filepath)
         print(self.text_from_file)
 
-        mc.scrollField(self.text_scrollfield, e=True, tx=self.text_from_file)
+        mc.scrollField(self.text_scrollfield, edit=True, tx=self.text_from_file)
 
     # Save text
     def save_text_to_file(self, *args):
-        pass
+        rr.write_text(self.filepath, mc.scrollField(self.text_scrollfield, tx=True, q=True))
+        print("Text in the field has now been saved into the file")
+
 
     # Func to make sure window is singleton
     def singleton_confirm(self):
