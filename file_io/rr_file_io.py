@@ -31,7 +31,7 @@ def write_text(path, text):
 # Read txt file
 def read_text(path):
     with open(txt_path, 'r') as f:
-        print(f'The file \'{path}\' says: \n{f.read()}')
+        # print(f'The file \'{path}\' says: \n{f.read()}')
         text = f.read()
         return text
 
