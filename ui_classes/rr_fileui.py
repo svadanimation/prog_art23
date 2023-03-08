@@ -28,7 +28,7 @@ class TestUI():
         self.window_text = self.TEXT
 
         # Initializing characteristics of scrollfield
-        self.scrollfield_name = "Text/JSON Scroll Field"
+        self.text_scrollfield = "Text/JSON Scroll Field"
         self.scrollfield_width = 250
         self.scrollfield_height = 250
         self.filepath = None
@@ -37,10 +37,9 @@ class TestUI():
         # Window layout
         mc.columnLayout()
         mc.button("Select file to display", command=self.print_text_from_file)
-        mc.scrollField(self.scrollfield_name, 
-                       w=self.scrollfield_width, 
-                       h=self.scrollfield_height,
-                       tx="Nothing here...")
+        self.text_scrollfield = mc.scrollField(w=self.scrollfield_width, 
+                                               h=self.scrollfield_height,
+                                               tx="Nothing here...")
         
         mc.button("Save current text to file", command=self.save_text_to_file)
 
@@ -57,9 +56,10 @@ class TestUI():
             mc.warning("Please select a file that can be displayed")
             return
         self.filepath = selected_file[0]
-        rr.read_text(self.filepath)
+        self.text_from_file = rr.read_text(self.filepath)
+        print(self.text_from_file)
 
-        mc.scrollField(self.scrollfield_name, e=True, tx=self.text_from_file)
+        mc.scrollField(self.text_scrollfield, e=True, tx=self.text_from_file)
 
     # Save text
     def save_text_to_file(self, *args):
@@ -79,3 +79,4 @@ class TestUI():
 
 if __name__ == "__main__":
     my_window = TestUI()
+
