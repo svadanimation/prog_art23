@@ -35,7 +35,8 @@ def rw_text(path, content = ''):
                 match = re.match(r'([a-z]+)([0-9]+)', line)
             if match:
                 text_info = match.groups()
-    return f'The file named {TEXT_FILE} says: {text_info}'
+    print(f'The file named {TEXT_FILE} says: {text_info}')
+    return(str(text_info))
 
 #Json Functions
 def rw_json(path, content = ''):
