@@ -1,5 +1,4 @@
 import sys
-from pprint import pprint
 from importlib import reload
 import maya.cmds as mc
 
@@ -7,14 +6,14 @@ mod_path = 'Z:/Classes/W23/Programming for Artists/VS Code Workspace/prog_art23/
 if mod_path not in sys.path:
     sys.path.append(mod_path)
 
-import np_file_io
+import np_file_io as np
 reload(np_file_io)
 
 class FileIO_ui():
     WINDOW_NAME = 'fileio_win'
 
     def __init__(self, text = None):
-        self.text = text    
+        self.text = 'Hello world!' 
         self.filepath = None
     
         self.remove()
@@ -24,32 +23,33 @@ class FileIO_ui():
                                       columnWidth = 250)
         self.text_scroll_field = mc.scrollField(editable = False,
                                                 wordWrap = True, 
-                                                text = 'Please input file path')
-        self.update_text_scroll_field = mc.button(label = "Load text file",
-                                                  command = self.update_scroll_field)
-        self.save_text_file = mc.button(label = "Save text file", 
+                                                text = 'Awaiting file path...')
+        self.load_file_button = mc.button(label = "Load text file",
+                                                  command = self.load_file)
+        self.save_file_button = mc.button(label = "Save text file", 
                                         command = self.save_file)
         self.show()
 
-    def update_scroll_field(self, *args):
+    def load_file(self, *args):
 
         result = mc.fileDialog2(fileFilter = '*.txt', dialogStyle = 2)
         if not result:
             return
         self.filepath = result[0]
 
-        self.text = np_file_io.rw_text(self.filepath, content = None)
-
-        print(f'This is what you wrote: \n\n {self.text}')
-        mc.scrollField(self.text_scroll_field,
+        mc.scrollField(self.text_scroll_field, 
                        edit = True,
+                       editable = True,
                        text = self.text)
-
+        
     def save_file(self, *args):
         if not self.filepath:
-            mc.warning('No file given')
+            mc.warning('No file path given')
             return
-        np_file_io.rw_text(self.filepath, content = self.text)
+        np.rw_text(self.filepath, content = mc.scrollField(self.text_scroll_field,
+                                                           query = True,
+                                                           text = True))
+        print(f'You wrote this to your file: \n\n {mc.scrollField(self.text_scroll_field, query = True, text = True)}')
 
     def show(self):
         if mc.window(self.WINDOW_NAME, query = True, exists = True):
@@ -60,5 +60,4 @@ class FileIO_ui():
             mc.deleteUI(self.WINDOW_NAME)
 
 if __name__ == '__main__':
-    the_ui = FileIO_ui('''To be fair, you have to have a very high IQ to understand Rick and Morty. The humor is extremely subtle, and without a solid grasp of theoretical physics most of the jokes will go over a typical viewer's head. There's also Rick's nihilistic outlook, which is deftly woven into his characterisation - his personal philosophy draws heavily from Narodnaya Volya literature, for instance. The fans understand this stuff; they have the intellectual capacity to truly appreciate the depths of these jokes, to realize that they're not just funny- they say something deep about LIFE. As a consequence people who dislike Rick and Morty truly ARE idiots- of course they wouldn't appreciate, for instance, the humour in Rick's existencial catchphrase "Wubba Lubba Dub Dub," which itself is a cryptic reference to Turgenev's Russian epic Fathers and Sons I'm smirking right now just imagining one of those addlepated simpletons scratching their heads in confusion as Dan Harmon's genius unfolds itself on their television screens. What fools... how I pity them. XD And yes by the way, I DO have a Rick and Morty tattoo. And no, you cannot see it. It's for the ladies' eyes only- And even they have to demonstrate that they're within 5 IQ points of my own (preferably lower) beforehand.''')
-    print(the_ui.text)
+    the_ui = FileIO_ui()
