@@ -46,7 +46,6 @@ class FileIo_UI():
                 mc.scrollField('my_scroll_field', 
                                 edit=True, 
                                 text=contents)
-        print(contents)
     
     def overWrite_text_file(self, *args):
 
@@ -66,3 +65,6 @@ class FileIo_UI():
     def remove(self):
         if mc.window(self.MY_WINDOW, q = True, exists = True):
             mc.deleteUI(self.MY_WINDOW)
+
+if __name__ == "__main__":
+    window = FileIo_UI()
