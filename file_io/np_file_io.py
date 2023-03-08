@@ -31,7 +31,7 @@ def rw_text(path, content = ''):
             t.write(content)
     else:
         with open(path, 'r') as t:
-            text_info = t.read
+            text_info = t.read()
     return text_info
             #for line in t:  
                 #match = re.match(r'([a-z]+)([0-9]+)', line)
