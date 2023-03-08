@@ -3,12 +3,12 @@ from pprint import pprint
 from importlib import reload
 import maya.cmds as mc
 
-# mod_path = 'Z:/Kaleb-Animation_23\winter_23/programming_4_artists/prog_art23/prog_art23/file_io'
-# if mod_path not in sys.path:
-#     sys.path.append(mod_path)
+mod_path = 'Z:/Kaleb-Animation_23\winter_23/programming_4_artists/prog_art23/prog_art23/file_io'
+if mod_path not in sys.path:
+    sys.path.append(mod_path)
 
-# import kr_file_io
-# reload (kr_file_io)
+import kr_file_io
+reload (kr_file_io)
 
 class FileIo_UI():
 
@@ -41,12 +41,12 @@ class FileIo_UI():
         if not result:
             return
         else:
-            with open(result[0], 'r') as f:
-                contents = f.read()
-                if contents:
-                    mc.scrollField('my_scroll_field', 
-                                   edit=True, 
-                                   text=contents)
+            contents = kr_file_io.read_txt(result[0])
+            if contents:
+                mc.scrollField('my_scroll_field', 
+                                edit=True, 
+                                text=contents)
+        print(contents)
     
     def overWrite_text_file(self, *args):
 
@@ -57,8 +57,7 @@ class FileIo_UI():
         if not file:
             return
         else:
-            with open (file[0], 'w') as f:
-                f.write(scrollField_contents)
+            kr_file_io.write_txt(file[0], scrollField_contents)
 
     def show(self):
         if mc.window(self.MY_WINDOW, q = True, exists = True):
@@ -67,12 +66,3 @@ class FileIo_UI():
     def remove(self):
         if mc.window(self.MY_WINDOW, q = True, exists = True):
             mc.deleteUI(self.MY_WINDOW)
-
-if __name__ == '__main__':
-    my_ui = FileIo_UI('evans cathphrase')
-    #print(my_ui.text)
-    # TEXT = 'my world'
-    # text_path = 'Z:/text_file.txt'
-    # kr_file_io.write_txt(text_path, TEXT)
-
-# pprint(sys.path)
