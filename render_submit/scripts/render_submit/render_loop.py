@@ -98,6 +98,16 @@ def render_shots(shots_data,
         width, height = vray_submit.calculate_aspect_ratio(res)
         # TODO: remove redundant apply shot data, make fn
         # that applies based on template
+        
+        if preset:
+            if os.path.isfile(preset):
+                import maya.app.renderSetup.views.renderSetupPreferences as prefs # pylint: disable=(import-error, import-outside-toplevel)
+                try:
+                    prefs.loadUserPreset(os.path.splitext(preset)[0])
+                    print(f'Loaded preset {preset}')
+                except Exception as ex:
+                    print(f'Error loading preset {preset} {ex}')
+        
         vray_submit.apply_render_settings(
             # get the shot data
             cut_in = shot.get('cut_in'),
@@ -109,14 +119,7 @@ def render_shots(shots_data,
             step = shot.get('step')
         )
 
-        if preset:
-            if os.path.isfile(preset):
-                import maya.app.renderSetup.views.renderSetupPreferences as prefs # pylint: disable=(import-error, import-outside-toplevel)
-                try:
-                    prefs.loadUserPreset(os.path.splitext(preset)[0])
-                    print(f'Loaded preset {preset}')
-                except Exception as ex:
-                    print(f'Error loading preset {preset} {ex}')
+     
 
         # audtion mode skips submitting and just checks the render loop
         if not audition:
