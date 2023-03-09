@@ -38,8 +38,7 @@ def open_scene(filepath):
 # not sure how to yield the progress information
 # attempt to pass class instance in
 def render_shots(shots_data, 
-                #  label=None,
-                #  progress=None, 
+                preset=None,
                 ui = None,
                 audition=False):
     '''Given a dictionary of shot data, open the scene and submit to farm
@@ -109,6 +108,15 @@ def render_shots(shots_data,
             outfile = shot.get('outfile'),
             step = shot.get('step')
         )
+
+        if preset:
+            if os.path.isfile(preset):
+                import maya.app.renderSetup.views.renderSetupPreferences as prefs # pylint: disable=(import-error, import-outside-toplevel)
+                try:
+                    prefs.loadUserPreset(os.path.splitext(preset)[0])
+                    print(f'Loaded preset {preset}')
+                except Exception as ex:
+                    print(f'Error loading preset {preset} {ex}')
 
         # audtion mode skips submitting and just checks the render loop
         if not audition:

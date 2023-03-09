@@ -140,7 +140,7 @@ def load_shot_data(filepath):
 
     with open(filepath, 'r', encoding='ascii') as f:
         try:
-            shots_data = json.load(f)
+            data = json.load(f)
         except json.JSONDecodeError as err:
             print(f'Unable to load file: {err.doc} \n'
                 f'Pos: {err.pos} '
@@ -152,10 +152,10 @@ def load_shot_data(filepath):
                              cancelButton='OK', dismissString='OK')
             return None
 
-    if validate_shot_data(shots_data):
-        return shots_data
+    if validate_shot_data(data.get('shots')):
+        return data.get('shots'), data.get('preset')
 
-def save_shot_data(filepath, shots_data):
+def save_shot_data(filepath, shots_data, preset=''):
     '''
     This function is called by the UI to save the shot data
     '''
@@ -163,10 +163,12 @@ def save_shot_data(filepath, shots_data):
     if not os.path.isdir(os.path.dirname(filepath)):
         mc.warning(f'Directory not found: {filepath}')
         return None
+    
+    data = {'shots': shots_data, 'preset': preset}
   
     with open(filepath, 'w', encoding='ascii') as f:
         try:
-            json.dump(shots_data, f, indent=4)
+            json.dump(data, f, indent=4)
         except ValueError as err:
             mc.confirmDialog(title='Error',
                              message=f'Unable to save file: {filepath} \n {err}',
@@ -217,72 +219,3 @@ if __name__ == '__main__':
     pprint(load_shot_data(test_shot_path))
 
 
-# Class to make changes to change keys and pairs within any subdict of a given key
-class FileEditor():
-    def __init__(self, file_info=None, file=None):
-
-        if file_info:
-            self.shot_list = file_info
-        elif file:
-            with open(file) as file:
-                self.shot_list = json.load(file)
-        else:
-            self.shot_list = []
-
-        self.id_format = {  "note" : None,
-                            "cut_in" : None,
-                            "cut_out" : None,
-                            "infile" : None,
-                            "outfile" : None,
-                            "res" : None,
-                            "step" : None,
-                            "active" : None     }
-
-    def update_file(self, file):
-        with open(file, 'w') as file:
-            json.dump(self.shot_list, file)
-
-    def add_shot(self, name=None, start_frame=None, end_frame=None, in_path=None, out_path=None, resolution=["720", "1280"], step=1, active=False):
-        input_data = [name, start_frame, end_frame, in_path, out_path, resolution, step, active]
-        edited_format = self.id_format
-
-        if id in self.shot_list:
-            # mc.warning("This shot already exists. Select a different shot or rename shot")
-            return
-        
-        for data in edited_format:
-            edited_format[data] = input_data[list(edited_format).index(data)]
-        self.shot_list.append(edited_format)
-        return self.shot_list
-
-    def remove_shot(self, id=None):
-        self.shot_list.pop()
-        return self.shot_list
-
-    def rearrange_shot(self, order=[]):
-        if not order:
-            # mc.warning('Please input the order you would like to rearrange your shots')
-            return
-
-        else:
-            self.shot_list = {id:self.shot_list[id] for id in order if id in order}
-        return self.shot_list
-
-    def replace_shot(self, id, replacement_id={}):
-        self.shot_list[id] = replacement_id
-
-'''
-
-TESTING:
-
-test_path = get_shot_data(test_shot_path)
-test_editor = FileEditor(file_info=test_path)
-pprint(test_editor.shot_list, sort_dicts=False)
-
-test_editor.add_shot(name="test_name_two", start_frame="0", end_frame="100", in_path="test_in", out_path="test_out")
-pprint(test_editor.shot_list, sort_dicts=False)
-
-test_editor.remove_shot(-1)
-pprint(test_editor.shot_list, sort_dicts=False)
-
-'''
