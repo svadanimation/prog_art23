@@ -4,7 +4,6 @@ TODO incorporate data flags instead of sorting by column
 
 '''
 
-import sys
 import os
 from pprint import pprint
 
@@ -12,7 +11,6 @@ from PySide2 import QtCore # pylint: disable=import-error
 from PySide2 import QtWidgets # pylint: disable=import-error
 from shiboken2 import wrapInstance # pylint: disable=import-error
 
-import maya.OpenMaya as om # pylint: disable=import-error
 import maya.OpenMayaUI as omui # pylint: disable=import-error
 import maya.cmds as mc # pylint: disable=import-error
 

@@ -76,10 +76,15 @@ def validate_shot_data(shots_data):
             if not isinstance(shot, dict):
                 mc.warning('Shot is not a dictionary')
                 return False
+            # make sure we have the file key
+            if 'file' not in shot:
+                mc.warning('Shot data is missing critical file key')
+                return False
             for key in SHOT_TEMPLATE:
                 if key not in shot:
-                    mc.warning(f'Shot data is missing key: {key}')
-                    return False
+                    mc.warning(f'Shot data is missing key: {key}. Defaulting...')
+                    # add the default key to the shot
+                    shot[key] = SHOT_TEMPLATE[key]
         return True
     else:
         mc.warning('Shots data is not a list')
@@ -87,7 +92,7 @@ def validate_shot_data(shots_data):
 
 def reorder_shots(shots_data, new_order):
     '''Reorders the shot data'''
-    shot_list = {shots_data[id] for id in shots_data if id in shots_data}
+    shot_list = {shots_data[id] for id in new_order if id in shots_data}
     return shot_list
 
 def replace_shot(shots_data, id, replacement):
