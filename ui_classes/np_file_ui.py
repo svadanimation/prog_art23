@@ -7,7 +7,7 @@ if mod_path not in sys.path:
     sys.path.append(mod_path)
 
 import np_file_io as np
-reload(np_file_io)
+reload(np)
 
 class FileIO_ui():
     WINDOW_NAME = 'fileio_win'
