@@ -17,37 +17,58 @@ reload(rj)
 #Class and Attributes
 class FileIO_ui():
     WINDOW_NAME = 'fileio_win'
+    SCROLL_NAME = 'my_scroll_field'
+    
     def __init__(self, text=None):
         self.remove()
-        self.window = mc.window(self.WINDOW_NAME)
+
+        self.window = mc.window(self.WINDOW_NAME, t='File Rewriter')
         self.layout = mc.columnLayout(columnAttach=('both', 5),
                                       rowSpacing=10,
                                       columnWidth=250)
-        self.button = mc.button(label='Load File', 
-                                command=self.load_file)
+        self.load_button = mc.button(l='Load File', 
+                                     c=self.load_file,
+                                     w=200)
+        self.data = ''
+        #self.spacer = mc.separator(style='none', height=10)
+        self.scroll_field = mc.scrollField(self.SCROLL_NAME,
+                                            editable=True, 
+                                            wordWrap=True, 
+                                            text=self.data,
+                                            vis=0)
+        #self.spacer = mc.separator(style='none', height=10)
+        self.write_button = mc.button(l='Rewrite File', 
+                                      c=self.update_text_file,
+                                      w=200)
         self.show()
         self.text = text
+        self.selected_file = None
 
     def load_file(self, *args):
-        file_filters = 'Text files (*txt);; JSON files (*.json)'
-        result = mc.fileDialog2(ff=file_filters, ds=2, dir='Z:')
-        selected_file = result[0]
+        result = mc.fileDialog2(ff='*.txt', ds=2, dir='Z:')
+        self.selected_file = result[0]
         if not result:
             mc.warning('No available files.')
             return
         else:
             print(result)
-            with open(selected_file, 'r') as s:
-                data = s.read()
-                if not data:
-                    mc.warning('Selected file is empty.')
-                else:
-                    mc.scrollField(editable=True, 
-                        wordWrap=True, 
-                        text=data) 
+            with open(self.selected_file, 'r') as s:
+                self.data = s.read()
+                mc.scrollField(self.SCROLL_NAME,
+                                   edit=True,
+                                   text=self.data,
+                                   vis=1)
 
-    def update_scroll_field(self, *args):
-        pass
+    def update_text_file(self, *args):
+        content = mc.scrollField(self.SCROLL_NAME,
+                                    q=True,
+                                    text=True)
+        if content:
+            rj.text_plcmnt(self.selected_file, content)
+            print('File rewritten.')
+        else:
+            mc.warning("Nothing to rewrite.")
+            return
 
     def remove(self):
         if mc.window(self.WINDOW_NAME, q=1, ex=1):

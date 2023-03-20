@@ -4,7 +4,6 @@ TODO incorporate data flags instead of sorting by column
 
 '''
 
-import sys
 import os
 from pprint import pprint
 
@@ -12,7 +11,6 @@ from PySide2 import QtCore # pylint: disable=import-error
 from PySide2 import QtWidgets # pylint: disable=import-error
 from shiboken2 import wrapInstance # pylint: disable=import-error
 
-import maya.OpenMaya as om # pylint: disable=import-error
 import maya.OpenMayaUI as omui # pylint: disable=import-error
 import maya.cmds as mc # pylint: disable=import-error
 
@@ -51,6 +49,7 @@ class MultiSubmitTableWindow(QtWidgets.QMainWindow):
         self.column_types = list(shot_data.SHOT_TEMPLATE.values())
         self.count = len(self.column_headers)-1
         self.shots_data = []
+        self.preset = ''
         self.active_file = None
         self.allow_duplicates = False
         self.submit_in_progress = False
@@ -100,6 +99,16 @@ class MultiSubmitTableWindow(QtWidgets.QMainWindow):
         self.central_widget = QtWidgets.QWidget()
         self.central_widget.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
 
+
+        self.preset_line_wdg = QtWidgets.QLineEdit(self)
+        self.preset_line_wdg.setReadOnly(True)
+        self.preset_button = QtWidgets.QPushButton("Preset", self)
+        self.preset_button.setFixedWidth(60)
+        self.preset_current_button = QtWidgets.QPushButton("Current", self)
+        self.preset_current_button.setFixedWidth(60)
+        self.preset_clear_button = QtWidgets.QPushButton("Clear", self)
+        self.preset_clear_button.setFixedWidth(60)
+
         self.table_wdg = QtWidgets.QTableWidget()
         self.table_wdg.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
 
@@ -121,18 +130,28 @@ class MultiSubmitTableWindow(QtWidgets.QMainWindow):
         self.update_visibility()
 
         self.add_btn = QtWidgets.QPushButton("Add")
+        self.add_current_btn = QtWidgets.QPushButton("Add Current")
         self.search_btn = QtWidgets.QPushButton("Search")
         self.delete_btn = QtWidgets.QPushButton("Delete Row")
         self.refresh_btn = QtWidgets.QPushButton("Refresh")
         self.close_btn = QtWidgets.QPushButton("Close")
 
     def create_layout(self):
+
+        preset_layout = QtWidgets.QHBoxLayout()
+        preset_layout.setSpacing(2)
+        preset_layout.addWidget(self.preset_button)
+        preset_layout.addWidget(self.preset_current_button)
+        preset_layout.addWidget(self.preset_clear_button)
+        preset_layout.addWidget(self.preset_line_wdg)
+
         button_layout = QtWidgets.QHBoxLayout()
         button_layout.setSpacing(2)
         button_layout.addStretch()
         button_layout.addWidget(self.submit_btn)
         button_layout.addWidget(self.search_btn)
         button_layout.addWidget(self.add_btn)
+        button_layout.addWidget(self.add_current_btn)
         button_layout.addWidget(self.delete_btn)
         button_layout.addWidget(self.refresh_btn)
         button_layout.addWidget(self.close_btn)
@@ -140,6 +159,10 @@ class MultiSubmitTableWindow(QtWidgets.QMainWindow):
         main_layout = QtWidgets.QVBoxLayout(self)
         main_layout.setContentsMargins(2, 2, 2, 2)
         main_layout.setSpacing(2)
+
+        main_layout.addLayout(preset_layout)
+        preset_layout.setStretchFactor(self.preset_line_wdg, 1)
+
         main_layout.addWidget(self.table_wdg, 1)
         main_layout.addStretch()
 
@@ -160,9 +183,13 @@ class MultiSubmitTableWindow(QtWidgets.QMainWindow):
         self.close_btn.clicked.connect(self.close_all)
         self.search_btn.clicked.connect(self.search_add_shots)
         self.add_btn.clicked.connect(self.add_shot)
+        self.add_current_btn.clicked.connect(self.add_current_scene)
         self.delete_btn.clicked.connect(self.delete_row)
 
         self.cancel_button.clicked.connect(self.cancel_submit)
+        self.preset_button.clicked.connect(self.open_preset)
+        self.preset_current_button.clicked.connect(self.save_current_preset)
+        self.preset_clear_button.clicked.connect(self.clear_preset)
 
         # self.table_wdg.cellDoubleClicked.connect(self.on_cell_double_clicked)
         self.table_wdg.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
@@ -206,6 +233,8 @@ class MultiSubmitTableWindow(QtWidgets.QMainWindow):
     def query_shot_data(self, row):
         shot = shot_data.query_scene_data()
         if shot:
+            # keep the current file, but replace everything else
+            shot['file'] = self.shots_data[row]['file']
             self.shots_data[row] = shot
             self.refresh_table()
 
@@ -242,6 +271,26 @@ class MultiSubmitTableWindow(QtWidgets.QMainWindow):
     def search_add_shots(self):
         self.multi_select_dialog.show_add_dialog()
 
+    def open_preset(self):
+        loadpath = mc.fileDialog2(fileMode=1, fileFilter="Render Presets (*.json)", okc='Open Preset')
+        if loadpath: 
+            loadpath = loadpath[0]
+            self.preset_line_wdg.setText(loadpath)
+            self.preset = loadpath
+
+    def save_current_preset(self):
+        loadpath = mc.fileDialog2(fileMode=0, fileFilter="Render Presets (*.json)", okc='Save Preset')
+        if loadpath: 
+            loadpath = loadpath[0]
+            import maya.app.renderSetup.views.renderSetupPreferences as rs_prefs # pylint: disable=(import-error, import-outside-toplevel)
+            rs_prefs.savePreset("Export Render Settings", loadpath)
+            self.preset = loadpath
+            self.preset_line_wdg.setText(loadpath)
+
+    def clear_preset(self):
+        self.preset = None
+        self.preset_line_wdg.setText("")
+        
     def add_shots(self, shots):
         # print(f'Adding shots: {shots}')
         for add_filepath in shots:
@@ -273,6 +322,21 @@ class MultiSubmitTableWindow(QtWidgets.QMainWindow):
 
             self.refresh_table()
     
+    def add_current_scene(self):
+        current_scene = mc.file(q=True, sn=True)
+        if current_scene:
+            # Check if the shot already exists in the table
+            if not self.allow_duplicates:
+                if shot_data.shot_exists(self.shots_data, current_scene):
+                    mc.confirmDialog(title="Shot Already Exists",
+                                     message=f"The shot {current_scene} already exists in the table.",
+                                     button=["OK"])
+                    return
+
+            shot_data.insert_shot(self.shots_data, current_scene)
+
+            self.refresh_table()
+
     def print_table(self):
         print("Shot Data:")
         pprint(self.shots_data)
@@ -282,9 +346,10 @@ class MultiSubmitTableWindow(QtWidgets.QMainWindow):
         loadpath = mc.fileDialog2(fileMode=1, fileFilter="JSON (*.json)")
         if loadpath: loadpath = loadpath[0]
         if loadpath:
-            shots_data = shot_data.load_shot_data(loadpath)
+            shots_data, preset = shot_data.load_shot_data(loadpath)
             if shots_data:
                 self.shots_data = shots_data
+                self.preset = preset
                 self.add_recent_file(loadpath)
 
             self.refresh_table()
@@ -298,9 +363,10 @@ class MultiSubmitTableWindow(QtWidgets.QMainWindow):
                              button=["OK"])
             return
             
-        shots_data = shot_data.load_shot_data(loadpath)
+        shots_data, preset = shot_data.load_shot_data(loadpath)
         if shots_data:
             self.shots_data = shots_data
+            self.preset = preset
             self.active_file = loadpath
             self.add_recent_file(loadpath)
         self.refresh_table()
@@ -311,7 +377,7 @@ class MultiSubmitTableWindow(QtWidgets.QMainWindow):
             return
         
         if os.path.isfile(self.active_file):
-            shot_data.save_shot_data(self.active_file, self.shots_data)
+            shot_data.save_shot_data(self.active_file, self.shots_data, self.preset)
         else:
             self.save_file_as()
 
@@ -319,7 +385,7 @@ class MultiSubmitTableWindow(QtWidgets.QMainWindow):
         savepath = mc.fileDialog2(fileMode=0, fileFilter="JSON (*.json)")
         if savepath: savepath = savepath[0]
         if savepath:
-            shot_data.save_shot_data(savepath, self.shots_data)
+            shot_data.save_shot_data(savepath, self.shots_data, self.preset)
             self.active_file = savepath
             self.add_recent_file(savepath)
 
@@ -385,6 +451,8 @@ class MultiSubmitTableWindow(QtWidgets.QMainWindow):
             self.table_wdg.setRowCount(0)
             return
 
+        self.preset_line_wdg.setText(self.preset)
+
         self.set_cell_changed_connection_enabled(False)
         self.table_wdg.setRowCount(0)
         for i, shot in enumerate(self.shots_data):
@@ -420,8 +488,7 @@ class MultiSubmitTableWindow(QtWidgets.QMainWindow):
 
         if active_shots:
             render_loop.render_shots(active_shots, 
-                                    #  label = self.progress_bar_label,
-                                    #  progress=self.progress_bar,
+                                    preset=self.preset,
                                     ui = self,
                                     audition=False)
         else:
