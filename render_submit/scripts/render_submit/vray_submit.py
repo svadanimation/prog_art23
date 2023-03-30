@@ -184,7 +184,7 @@ def get_jobs(make_movie=False, project=False, high_memory=0):
     # It will try to run on the /osx cluster first
     if project:
         vray_job['cluster']='/osx/+'
-        vray_job['requirements'] = 'host.os=osx || host.os =winnt'
+        vray_job['requirements'] = 'host.os=osx || host.os=winnt'
         vray_job['project'] = project
 
     # Consider exposing this memory value in confirmation script,
