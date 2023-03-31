@@ -22,8 +22,8 @@ def calculate_aspect_ratio(res):
     width = None
     height = None
     if res:
-        width = int(res*constants.ASPECT_RATIO)
-        height = res
+        height = int(res*constants.ASPECT_RATIO)
+        width = res
     return width, height
 
 def get_jobs(make_movie=False, project=False, high_memory=0):
