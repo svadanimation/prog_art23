@@ -44,7 +44,7 @@ def query_scene_data():
     scene_data['file'] = mc.file(q=True, sn=True)
     scene_data['cut_in'] = int(mc.playbackOptions(q=True, min=True))
     scene_data['cut_out'] = int(mc.playbackOptions(q=True, max=True))
-    scene_data['res'] = int(mc.getAttr('defaultResolution.width'))
+    scene_data['res'] = int(mc.getAttr('defaultResolution.height'))
     scene_data['step'] = int(mc.getAttr('defaultRenderGlobals.byFrameStep'))
     
     return scene_data
