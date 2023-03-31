@@ -83,7 +83,6 @@ from render_submit import vray_mash
 from render_submit import vray_submit
 from render_submit.ui import single_submit_ui
 from render_submit.ui import multi_submit_ui
-from render_submit.ui import add_file_dialog
 
 # Iterate over the modules in sys.modules with the same package name
 success = True
