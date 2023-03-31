@@ -7,7 +7,7 @@ if mod_path not in sys.path:
     sys.path.append(mod_path)
 
 import np_file_io as np
-reload(np_file_io)
+reload(np)
 
 class FileIO_ui():
     WINDOW_NAME = 'fileio_win'
@@ -41,6 +41,7 @@ class FileIO_ui():
                        edit = True,
                        editable = True,
                        text = self.text)
+        print(f'Your file currently says: \n\n {np.rw_text(self.filepath, content = None)}')
         
     def save_file(self, *args):
         if not self.filepath:
@@ -49,7 +50,7 @@ class FileIO_ui():
         np.rw_text(self.filepath, content = mc.scrollField(self.text_scroll_field,
                                                            query = True,
                                                            text = True))
-        print(f'You wrote this to your file: \n\n {mc.scrollField(self.text_scroll_field, query = True, text = True)}')
+        print(f'Your file now says: \n\n {mc.scrollField(self.text_scroll_field, query = True, text = True)}')
 
     def show(self):
         if mc.window(self.WINDOW_NAME, query = True, exists = True):
