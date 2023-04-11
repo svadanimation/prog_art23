@@ -17,6 +17,7 @@ VRAY_PATH = os.path.join(BASE_PIPE, VRAY_VERSION, '/maya_vray/bin')
 VRAY_PLUGINS = os.path.join(BASE_PIPE, VRAY_VERSION, 'maya_vray/vrayplugins')
 VRAY_OSL_PATH = os.path.join(BASE_PIPE, VRAY_VERSION, 'vray/opensl')
 VRAY_PLUGIN_LOAD = ['vrayformaya', 'vrayvolumegrid', 'xgenVRay']
+OCIO = os.path.join(BASE_PIPE, 'OCIO-configs/Maya2022-default', 'config.ocio')
 
 NETWORK_SUFFIX = '.svad.southern.edu'
 OMIT_DRIVES = ('C:', 'D:', 'E:', 'F:')

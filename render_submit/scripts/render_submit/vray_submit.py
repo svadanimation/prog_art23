@@ -125,8 +125,9 @@ def get_jobs(make_movie=False, project=False, high_memory=0):
     # just in time and then passes any additional flags
     vray_job['env'] = {
         'PATH': f'%PATH%;{constants.VRAY_PATH}',
-        'VRAY_TERMINATE_ON_FRAME_END': '1',
-        'VRAY_OSL_PATH' : constants.VRAY_OSL_PATH
+        'VRAY_TERMINATE_ON_FRAME_END': '0',
+        'VRAY_OSL_PATH' : constants.VRAY_OSL_PATH,
+        'OCIO': constants.OCIO
         }
 
     package = {}
