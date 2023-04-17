@@ -14,6 +14,21 @@ from render_submit import render_utils
 GEOMETRY = 'GeomMeshFile'
 BITMAP = 'BitmapBuffer'
 SCENE = 'VRayScene'
+VDB = 'PhxShaderCache'
+
+def find_and_replace_nodes(node_list, 
+                           local_drive_table, 
+                           flag = 'file', 
+                           debug=True):
+    for node in node_list:
+        if debug: print (f'Node: {node}')
+        path = node.get(flag)
+        path = render_utils.unc_mapper(path,
+                                     remove = constants.NETWORK_SUFFIX,
+                                     drivetable=local_drive_table)
+        path = path.replace(os.sep, '/')
+        if debug: print (f'Path: {path}')
+        node.set(flag, str(path))
 
 def find_and_process_paths(debug=True):
     '''post translate python script to replace all drive mapped paths with unc paths
@@ -29,32 +44,30 @@ def find_and_process_paths(debug=True):
     nodes.extend( vu.findByType(GEOMETRY) )
     nodes.extend( vu.findByType(BITMAP) )
 
-
-    for node in nodes:
-        if debug: print (f'Node: {node}')
-        path = node.get('file')
-        path = render_utils.unc_mapper(path,
-                                     remove = constants.NETWORK_SUFFIX,
-                                     drivetable=local_drive_table)
-        path = path.replace(os.sep, '/')
-        if debug: print (f'Path: {path}')
-        node.set('file', str(path))
+    find_and_replace_nodes(local_drive_table=local_drive_table,
+                           node_list=nodes,
+                           flag='file',
+                           debug=debug)
 
     if debug: print ('Finding scenes')
 
     scenes=[]
     scenes.extend( vu.findByType(SCENE) )
 
-    for scene in scenes:
-        if debug: print (f'Scene {scene}')
+    find_and_replace_nodes(local_drive_table=local_drive_table,
+                           node_list=scenes,
+                           flag='filepath',
+                           debug=debug)
 
-        path = scene.get('filepath')
-        path = render_utils.unc_mapper(path,
-                                     remove = constants.NETWORK_SUFFIX,
-                                     drivetable=local_drive_table)
-        path = path.replace(os.sep, '/')
-        if debug: print ('Path: {path}')
-        scene.set('filepath', str(path))
+    if debug: print ('Finding vdb files')
+    vdbs=[]
+    vdbs.extend( vu.findByType(SCENE) )
+
+    find_and_replace_nodes(local_drive_table=local_drive_table,
+                            node_list=vdbs,
+                            flag='cache_path',
+                            debug=debug)
+
 
 if __name__ == "__main__":
     find_and_process_paths()
