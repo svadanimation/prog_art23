@@ -61,7 +61,7 @@ def find_and_process_paths(debug=True):
 
     if debug: print ('Finding vdb files')
     vdbs=[]
-    vdbs.extend( vu.findByType(SCENE) )
+    vdbs.extend( vu.findByType(VDB))
 
     find_and_replace_nodes(local_drive_table=local_drive_table,
                             node_list=vdbs,
