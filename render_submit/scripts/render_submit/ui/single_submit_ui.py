@@ -230,7 +230,7 @@ class SubmitUI(object):
         width = int(self.jobs['vray_job']['package']['-imgWidth'])
 
         render_range = self.jobs['vray_job']['package']['range']
-        start_frame, end_frame = render_range.split('-')
+        start_frame, end_frame = render_range.rsplit('-', 1)
         mc.setAttr("defaultRenderGlobals.startFrame", int(start_frame))
         mc.setAttr("defaultRenderGlobals.endFrame", int(end_frame))
 
